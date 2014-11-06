@@ -38,6 +38,32 @@ END_FIELD_DESC()
 SensesContentProvider::SensesContentProvider()
 { }
 
+bool SensesContentProvider::loadSenses( int wordId, QList< std::shared_ptr< SensesData > >& senses )
+{
+    SensesDesc desc;
+
+    QString queryStr = "select " + desc.makeBufferingStr() + " from " + desc.getTableName();
+            queryStr += " where word_id=:word_id";
+
+    QSqlQuery query;
+    query.prepare( queryStr );
+
+    query.bindValue( ":word_id", wordId );
+
+    if( !query.exec() )
+        return false;
+
+    QSqlRecord rec = query.record();
+
+    while( query.next() )
+    {
+        desc.fetch( query, rec );
+        senses.append( std::make_shared< SensesData >( desc ) );
+    }
+
+    return true;
+}
+
 bool SensesContentProvider::insertSense( std::shared_ptr< SensesData >& sense )
 {
     SensesDesc desc( *sense.get() );

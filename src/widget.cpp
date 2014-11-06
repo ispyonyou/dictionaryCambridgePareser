@@ -128,6 +128,70 @@ void Widget::getItClicked()
     }
 
     mp3wrapp( mp3wrapArgs.size() + 1, args );
+
+    QString html;
+
+    html += "<!DOCTYPE html>"
+            "<html lang=\"en\">"
+            "<head>"
+            "  <meta charset=\"utf-8\" /> "
+            "  <style>"
+            "    .wordArea {"
+            "    }"
+            "    .word {"""
+            "      font: 22pt sans-serif; "
+            "    }"
+            "    .transcrypt{"
+            "      font: 18pt monospace; "
+            "    }"
+            "    .senses{"
+            "      position: relative; "
+            "      left: 20px;"
+            "      font: 14pt sans-serif; "
+            "    }"
+            "  </style> "
+            "</head>"
+            "<body>";
+
+    SensesContentProvider sensesProvider;
+    ExamplesContentProvider examplesProvider;
+
+    for( int i = 0; i < wordsModel->rowCount( QModelIndex() ); i++ )
+    {
+        std::shared_ptr< WordsData > wordData = wordsModel->getWordData( i );
+
+        QString header =  "<div class=\"wordArea\">"
+                            "<div>"
+                              "<span class=\"word\"> %1 </span><span class=\"transcrypt\">/%2/</span>"
+                            "</div>"
+                          "</div>";
+
+        html += header.arg( wordData->word )
+                      .arg( wordData->transcription );
+
+        QList< std::shared_ptr< SensesData > > senses;
+        sensesProvider.loadSenses( wordData->id, senses );
+
+        html += "<div class=\"senses\">";
+
+        Q_FOREACH( std::shared_ptr< SensesData > sense, senses )
+        {
+            QString senseHtml = "<li>%1<br/>%2</li>";
+
+            html += senseHtml.arg( sense->defenition )
+                             .arg( sense->translation );
+        }
+
+        html += "</div>";
+    }
+
+    html += "</body>"
+            "</html>";
+
+    QFile htmlFile( "html_" + curTimeStr + ".html" );
+    htmlFile.open( QFile::WriteOnly );
+
+    htmlFile.write( html.toUtf8() );
 }
 
 void Widget::settingsClicked()
