@@ -408,7 +408,7 @@ bool FieldDesc::loadAll( std::function<void ()> rowFetched, const QList< void* >
     return true;
 }
 
-void FieldDesc::loadByPkeys()
+bool FieldDesc::loadByPkeys()
 {
     QList< FieldDescItem > items;
     enumerateItems( items );
@@ -447,11 +447,16 @@ void FieldDesc::loadByPkeys()
     for( int i = 0; i < items.size(); i++ )
         items[ i ].bindValue( query );
 
-    query.exec();
+    if( !query.exec() )
+        return false;
 
     QSqlRecord rec = query.record();
 
-    if( query.next() )
-        for( int i = 0; i < items.size(); i++ )
-            items[ i ].fetch( query, rec );
+    if( !query.next() )
+        return false;
+
+    for( int i = 0; i < items.size(); i++ )
+        items[ i ].fetch( query, rec );
+
+    return true;
 }

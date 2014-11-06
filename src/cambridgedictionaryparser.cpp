@@ -9,7 +9,16 @@
 
 #define CAMBRIDGE_DICT_BASE_URL "http://dictionary.cambridge.org/ru/%D1%81%D0%BB%D0%BE%D0%B2%D0%B0%D1%80%D1%8C/%D0%B0%D0%BD%D0%B3%D0%BB%D0%BE-%D1%80%D1%83%D1%81%D1%81%D0%BA%D0%B8%D0%B9/"
 
-std::shared_ptr< WordsData > CambridgeDictWordInfo::toWordsData()
+std::shared_ptr< SensesData > CambridgeDictSenseInfo::toSensesData() const
+{
+    std::shared_ptr< SensesData > data( new SensesData() );
+    data->defenition  = defenition;
+    data->translation = translation;
+
+    return data;
+}
+
+std::shared_ptr< WordsData > CambridgeDictWordInfo::toWordsData() const
 {
     std::shared_ptr< WordsData > data( new WordsData() );
     data->word = word;

@@ -24,6 +24,7 @@
 #include <QSqlError>
 #include "CambridgeDictionaryParser.h"
 #include "dbutils.h"
+#include "ContentProviders/sensescontentprovider.h"
 
 extern "C" {
   #include "third-party/mp3wrap/mp3wrap.h"
@@ -64,19 +65,7 @@ Widget::Widget(QWidget *parent)
     WordsContentProvider wordsProvider;
     wordsProvider.loadWords( words );
 
-//    QSqlQuery query;
-//    query.exec( "select id, word, transcription, is_learned from eng_words;" );
-//
-//    while( query.next() )
-    Q_FOREACH( std::shared_ptr< WordsData > word, words )
-    {
-//        std::shared_ptr< WordData > wordData( new WordData() );
-//
-//        wordData->id            = query.value( 0 ).toInt();
-//        wordData->word          = query.value( 1 ).toString();
-//        wordData->transcription = query.value( 2 ).toString();
-//        wordData->isLearned     = query.value( 3 ).toBool();
-
+    Q_FOREACH( std::shared_ptr< WordsData > word, words ) {
         wordsModel->appendWord( word );
     }
 
@@ -91,9 +80,6 @@ Widget::~Widget()
 
 void Widget::getItClicked()
 {
-    QSqlQuery query;
-    query.prepare( "select audio from eng_words where id = :id;" );
-
     QDate curDate = QDate::currentDate();
     QTime curTime = QTime::currentTime();
 
@@ -107,16 +93,14 @@ void Widget::getItClicked()
     QStringList mp3wrapArgs;
     mp3wrapArgs.append( "album_" + curTimeStr + ".mp3" );
 
+    WordsContentProvider wordsProvider;
+
     for( int i = 0; i < wordsModel->rowCount( QModelIndex() ); i++ )
     {
         std::shared_ptr< WordsData > wordData = wordsModel->getWordData( i );
-        query.bindValue( ":id", wordData->id );
 
-        query.exec();
-
-        Q_ASSERT( query.next() );
-
-        QByteArray audio = query.value( 0 ).toByteArray();
+        QByteArray audio;
+        wordsProvider.loadAudio( wordData->id, audio );
 
         QString fileName = wordData->word + ".mp3" ;
         QFile outFile(  fileName );
@@ -142,11 +126,6 @@ void Widget::getItClicked()
     }
 
     mp3wrapp( mp3wrapArgs.size() + 1, args );
-
-//    if( QProcess::execute( "mp3wrap.exe", mp3wrapArgs ) )
-//        Q_ASSERT( false );
-
-    return;
 }
 
 void Widget::settingsClicked()
@@ -170,32 +149,14 @@ void Widget::addWordClicked()
     WordsContentProvider wordsProvider;
     wordsProvider.insertWord( wordData );
 
-//    QString queryStr = "insert into eng_words(word, transcription, audio, is_learned) "
-//                       "values(:word, :transcription, :audio, :is_learned);";
-//
-//    QSqlQuery query;
-//    query.prepare( queryStr );
-//
-//    query.bindValue( ":word"         , wordInfo.word );
-//    query.bindValue( ":transcription", wordInfo.transcription );
-//    query.bindValue( ":audio"        , wordInfo.audio);
-//    query.bindValue( ":is_learned"   , false );
-//
-//    if( !query.exec() )
-//    {
-//        qDebug() << query.lastError().text();
-//        return;
-//    }
-//
-//    std::shared_ptr< WordsData > wordData( new WordsData() );
-//
-//    query.exec( "select last_insert_rowid()" );
-//    query.next();
-//    wordData->id            = query.value( 0 ).toInt();
-//    wordData->word          = wordInfo.word;
-//    wordData->transcription = wordInfo.transcription;
-//    wordData->isLearned     = false;
+    SensesContentProvider sensesProvider;
+
+    Q_FOREACH( const CambridgeDictSenseInfo& senseInfo, wordInfo.senses )
+    {
+        std::shared_ptr< SensesData > senseData = senseInfo.toSensesData();
+        senseData->wordId = wordData->id;
+        sensesProvider.insertSense( senseData );
+    }
 
     wordsModel->appendWord( wordData );
 }
-

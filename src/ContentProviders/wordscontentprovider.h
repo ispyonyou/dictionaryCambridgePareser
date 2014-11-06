@@ -2,17 +2,8 @@
 #ifndef WORDSCONTENTPROVIDER_H
 #define WORDSCONTENTPROVIDER_H
 
-#include "../CopyClearBase.h"
-#include <QString>
-
-struct WordsData : public CopyClearBase< WordsData >
-{
-    int id;
-    QString word;
-    QString transcription;
-    QByteArray audio;
-    bool isLearned;
-};
+#include "wordsdata.h"
+#include <QList>
 
 class WordsContentProvider
 {
@@ -20,6 +11,7 @@ public:
     WordsContentProvider();
 
     bool loadWords( QList< std::shared_ptr< WordsData > >& words );
+    bool loadAudio( int wordId, QByteArray& audio );
     bool insertWord( std::shared_ptr< WordsData >& word );
 };
 

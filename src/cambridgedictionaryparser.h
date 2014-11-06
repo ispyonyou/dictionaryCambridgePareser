@@ -2,13 +2,16 @@
 #define CAMBRIDGEDICTIONARYPARSER_H
 
 #include <QObject>
-#include "ContentProviders/wordscontentprovider.h"
+#include "ContentProviders/wordsdata.h"
+#include "ContentProviders/sencesdata.h"
 
 struct CambridgeDictSenseInfo
 {
     QString defenition;
     QString translation;
     QList< QString > examples;
+
+    std::shared_ptr< SensesData > toSensesData() const;
 };
 
 struct CambridgeDictWordInfo
@@ -19,7 +22,7 @@ struct CambridgeDictWordInfo
     QByteArray audio;
     QList< CambridgeDictSenseInfo > senses;
 
-    std::shared_ptr< WordsData > toWordsData();
+    std::shared_ptr< WordsData > toWordsData() const;
 };
 
 class CambridgeDictionaryParserPrivate;

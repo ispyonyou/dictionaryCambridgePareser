@@ -79,7 +79,7 @@ public:
 public:
     bool loadAll( std::function<void ()> rowFetched, const QList< void* >& includeFields = QList< void* >()
                                                    , const QList< void* >& excluseFields = QList< void* >() );
-    void loadByPkeys();
+    bool loadByPkeys();
 };
 
 #define DECLARE_FIELD_DESC( classname ) \

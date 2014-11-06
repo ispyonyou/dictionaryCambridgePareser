@@ -46,6 +46,18 @@ bool WordsContentProvider::loadWords( QList< std::shared_ptr< WordsData > >& wor
     return desc.loadAll( [&](){ words.append( std::make_shared< WordsData >( desc ) ); }, QList< void* >(), QList< void* >() << (void*)&desc.audio );
 }
 
+bool WordsContentProvider::loadAudio( int wordId, QByteArray& audio )
+{
+    WordsDesc desc;
+    desc.id = wordId;
+
+    if( !desc.loadByPkeys() )
+        return false;
+
+    audio = desc.audio;
+    return true;
+}
+
 bool WordsContentProvider::insertWord( std::shared_ptr< WordsData >& word )
 {
     WordsDesc desc( *word.get() );
@@ -59,6 +71,6 @@ bool WordsContentProvider::insertWord( std::shared_ptr< WordsData >& word )
     if( !query.next() )
         return false;
 
-    desc.id = query.value( 0 ).toInt();
+    word->id = query.value( 0 ).toInt();
     return true;
 }
