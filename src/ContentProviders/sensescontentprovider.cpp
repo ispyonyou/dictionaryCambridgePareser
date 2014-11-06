@@ -53,5 +53,4 @@ bool SensesContentProvider::insertSense( std::shared_ptr< SensesData >& sense )
 
     sense->id = query.value( 0 ).toInt();
     return true;
-
 }

@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     ContentProviders/wordscontentprovider.cpp \
     dbutils.cpp \
     ContentProviders/FieldDesc.cpp \
-    ContentProviders/sensescontentprovider.cpp
+    ContentProviders/sensescontentprovider.cpp \
+    ContentProviders/examplescontentprovider.cpp
 
 HEADERS  += widget.h \
     settingsdialog.h \
@@ -41,7 +42,9 @@ HEADERS  += widget.h \
     CopyClearBase.h \
     ContentProviders/sensescontentprovider.h \
     ContentProviders/wordsdata.h \
-    ContentProviders/sencesdata.h
+    ContentProviders/sencesdata.h \
+    ContentProviders/examplescontentprovider.h \
+    ContentProviders/examplesdata.h
 
 FORMS    += widget.ui \
     settings.ui

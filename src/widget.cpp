@@ -24,7 +24,9 @@
 #include <QSqlError>
 #include "CambridgeDictionaryParser.h"
 #include "dbutils.h"
+#include "ContentProviders/wordscontentprovider.h"
 #include "ContentProviders/sensescontentprovider.h"
+#include "ContentProviders/examplescontentprovider.h"
 
 extern "C" {
   #include "third-party/mp3wrap/mp3wrap.h"
@@ -150,12 +152,21 @@ void Widget::addWordClicked()
     wordsProvider.insertWord( wordData );
 
     SensesContentProvider sensesProvider;
+    ExamplesContentProvider examplesProvider;
 
     Q_FOREACH( const CambridgeDictSenseInfo& senseInfo, wordInfo.senses )
     {
         std::shared_ptr< SensesData > senseData = senseInfo.toSensesData();
         senseData->wordId = wordData->id;
         sensesProvider.insertSense( senseData );
+
+        Q_FOREACH( const QString& example, senseInfo.examples )
+        {
+            std::shared_ptr< ExamplesData > exampleData( new ExamplesData );
+            exampleData->senseId = senseData->id;
+            exampleData->text    = example;
+            examplesProvider.insertExample( exampleData );
+        }
     }
 
     wordsModel->appendWord( wordData );

@@ -2,7 +2,7 @@
 #define WORDSMODEL_H
 
 #include <QAbstractTableModel>
-#include "ContentProviders/wordscontentprovider.h"
+#include "ContentProviders/wordsdata.h"
 
 class WordsModelPrivate;
 

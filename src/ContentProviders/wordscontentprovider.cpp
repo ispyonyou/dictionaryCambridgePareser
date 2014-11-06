@@ -37,8 +37,7 @@ BEGIN_FIELD_DESC( WordsDesc, "words" )
 END_FIELD_DESC()
 
 WordsContentProvider::WordsContentProvider()
-{
-}
+{ }
 
 bool WordsContentProvider::loadWords( QList< std::shared_ptr< WordsData > >& words )
 {
