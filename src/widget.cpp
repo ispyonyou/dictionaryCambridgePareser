@@ -24,6 +24,10 @@
 #include <QSqlError>
 #include "CambridgeDictionaryParser.h"
 
+extern "C" {
+  #include "third-party/mp3wrap/mp3wrap.h"
+}
+
 #include "wordsmodel.h"
 
 class MainWidgetPrivate
@@ -148,8 +152,21 @@ void Widget::getItClicked()
         }
     }
 
-    if( QProcess::execute( "mp3wrap.exe", mp3wrapArgs ) )
-        Q_ASSERT( false );
+    char** args = new char*[ mp3wrapArgs.size() + 1 ];
+    args[0] = new char[ 1 ];
+    args[0][0] = '\0';
+
+    for( long i = 0; i < mp3wrapArgs.size(); i++ )
+    {
+        args[i+1] = new char[ mp3wrapArgs[ i ].length() + 1 ];
+        strcpy_s( args[i+1], mp3wrapArgs[ i ].length() + 1, mp3wrapArgs[ i ].toLatin1() );
+        args[i+1][mp3wrapArgs[ i ].length()] = '\0';
+    }
+
+    mp3wrapp( mp3wrapArgs.size() + 1, args );
+
+//    if( QProcess::execute( "mp3wrap.exe", mp3wrapArgs ) )
+//        Q_ASSERT( false );
 
     return;
 }

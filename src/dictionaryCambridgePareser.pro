@@ -11,17 +11,26 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = dictionaryCambridgePareser
 TEMPLATE = app
 
+#QMAKE_EXT_CPP = .cpp
 
 SOURCES += main.cpp\
         widget.cpp \
     settingsdialog.cpp \
     wordsmodel.cpp \
-    cambridgedictionaryparser.cpp
+    cambridgedictionaryparser.cpp \
+    third-party/mp3wrap/crc.c \
+    third-party/mp3wrap/getopt.c \
+    third-party/mp3wrap/mp3wrap.c \
+    third-party/mp3wrap/wrap.c
 
 HEADERS  += widget.h \
     settingsdialog.h \
     wordsmodel.h \
-    cambridgedictionaryparser.h
+    cambridgedictionaryparser.h \
+    third-party/mp3wrap/crc.h \
+    third-party/mp3wrap/getopt.h \
+    third-party/mp3wrap/mp3wrap.h \
+    third-party/mp3wrap/wrap.h
 
 FORMS    += widget.ui \
     settings.ui
