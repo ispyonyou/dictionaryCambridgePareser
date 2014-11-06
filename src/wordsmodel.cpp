@@ -9,7 +9,7 @@ public:
 
 public:
     WordsModel& q;
-    QList< std::shared_ptr< WordData > > Words;
+    QList< std::shared_ptr< WordsData > > Words;
 };
 
 WordsModel::WordsModel( QObject* parent )
@@ -43,7 +43,7 @@ QVariant WordsModel::data( const QModelIndex& index, int role ) const
         return QVariant();
 
     if( Qt::DisplayRole == role ) {
-        std::shared_ptr< WordData > wordData = d.Words.at( index.row() );
+        std::shared_ptr< WordsData > wordData = d.Words.at( index.row() );
 
         switch( index.column() ) {
             case Hid_WordModel_Word:
@@ -119,7 +119,7 @@ bool WordsModel::insertRows( int position, int rows, const QModelIndex& index )
     beginInsertRows( QModelIndex(), position, position + rows - 1 );
 
     for( int row = 0; row < rows; ++row ) {
-        std::shared_ptr< WordData > word( new WordData() );
+        std::shared_ptr< WordsData > word( new WordsData() );
         d.Words.insert( position, word );
     }
 
@@ -140,14 +140,14 @@ bool WordsModel::removeRows( int position, int rows, const QModelIndex& index )
     return true;
 }
 
-void WordsModel::appendWord( std::shared_ptr< WordData > wordData )
+void WordsModel::appendWord( std::shared_ptr< WordsData > wordData )
 {
     beginInsertRows( QModelIndex(), d.Words.size(), d.Words.size() );
     d.Words.append( wordData );
     endInsertRows();
 }
 
-std::shared_ptr< WordData > WordsModel::getWordData( long row )
+std::shared_ptr< WordsData > WordsModel::getWordData( long row )
 {
     return d.Words[ row ];
 }

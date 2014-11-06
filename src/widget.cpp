@@ -23,6 +23,7 @@
 #include <QSqlRecord>
 #include <QSqlError>
 #include "CambridgeDictionaryParser.h"
+#include "dbutils.h"
 
 extern "C" {
   #include "third-party/mp3wrap/mp3wrap.h"
@@ -35,35 +36,6 @@ class MainWidgetPrivate
 public:
     CambridgeDictionaryParser* cambridgeDictParser;
 };
-
-namespace {
-    bool createConnection()
-    {
-        QSqlDatabase db = QSqlDatabase::addDatabase( "QSQLITE" );
-        db.setDatabaseName("engwordsdb");
-        if (!db.open()) {
-            QMessageBox::critical(0, qApp->tr( "Cannot open database" ),
-                qApp->tr( "Unable to establish a database connection.\n"
-                          "Click Cancel to exit." ), QMessageBox::Cancel);
-            return false;
-        }
-
-        QSqlQuery query;
-        query.exec( "select 1 from sqlite_master where type='table' and name='eng_words'" );
-
-        if( !query.next() )
-        {
-            query.exec( "create table eng_words (id            INTEGER PRIMARY KEY NOT NULL UNIQUE, "
-                                                "word          VARCHAR2(256) UNIQUE,"
-                                                "transcription VARCHAR2(256),"
-                                                "audio         BLOB, "
-                                                "is_learned    INT)" );
-
-        }
-
-        return true;
-    }
-}
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
@@ -87,19 +59,25 @@ Widget::Widget(QWidget *parent)
 
     wordsModel = new WordsModel();
 
-    QSqlQuery query;
-    query.exec( "select id, word, transcription, is_learned from eng_words;" );
+    QList< std::shared_ptr< WordsData > > words;
 
-    while( query.next() )
+    WordsContentProvider wordsProvider;
+    wordsProvider.loadWords( words );
+
+//    QSqlQuery query;
+//    query.exec( "select id, word, transcription, is_learned from eng_words;" );
+//
+//    while( query.next() )
+    Q_FOREACH( std::shared_ptr< WordsData > word, words )
     {
-        std::shared_ptr< WordData > wordData( new WordData() );
+//        std::shared_ptr< WordData > wordData( new WordData() );
+//
+//        wordData->id            = query.value( 0 ).toInt();
+//        wordData->word          = query.value( 1 ).toString();
+//        wordData->transcription = query.value( 2 ).toString();
+//        wordData->isLearned     = query.value( 3 ).toBool();
 
-        wordData->id            = query.value( 0 ).toInt();
-        wordData->word          = query.value( 1 ).toString();
-        wordData->transcription = query.value( 2 ).toString();
-        wordData->isLearned     = query.value( 3 ).toBool();
-
-        wordsModel->appendWord( wordData );
+        wordsModel->appendWord( word );
     }
 
     ui->tableView->setModel( wordsModel );
@@ -131,7 +109,7 @@ void Widget::getItClicked()
 
     for( int i = 0; i < wordsModel->rowCount( QModelIndex() ); i++ )
     {
-        std::shared_ptr< WordData > wordData = wordsModel->getWordData( i );
+        std::shared_ptr< WordsData > wordData = wordsModel->getWordData( i );
         query.bindValue( ":id", wordData->id );
 
         query.exec();
@@ -187,31 +165,36 @@ void Widget::addWordClicked()
     if( !d.cambridgeDictParser->loadWordInfo( word, wordInfo ) )
         return;
 
-    QString queryStr = "insert into eng_words(word, transcription, audio, is_learned) "
-                       "values(:word, :transcription, :audio, :is_learned);";
+    std::shared_ptr< WordsData > wordData = wordInfo.toWordsData();
 
-    QSqlQuery query;
-    query.prepare( queryStr );
+    WordsContentProvider wordsProvider;
+    wordsProvider.insertWord( wordData );
 
-    query.bindValue( ":word"         , wordInfo.word );
-    query.bindValue( ":transcription", wordInfo.transcription );
-    query.bindValue( ":audio"        , wordInfo.audio);
-    query.bindValue( ":is_learned"   , false );
-
-    if( !query.exec() )
-    {
-        qDebug() << query.lastError().text();
-        return;
-    }
-
-    std::shared_ptr< WordData > wordData( new WordData() );
-
-    query.exec( "select last_insert_rowid()" );
-    query.next();
-    wordData->id            = query.value( 0 ).toInt();
-    wordData->word          = wordInfo.word;
-    wordData->transcription = wordInfo.transcription;
-    wordData->isLearned     = false;
+//    QString queryStr = "insert into eng_words(word, transcription, audio, is_learned) "
+//                       "values(:word, :transcription, :audio, :is_learned);";
+//
+//    QSqlQuery query;
+//    query.prepare( queryStr );
+//
+//    query.bindValue( ":word"         , wordInfo.word );
+//    query.bindValue( ":transcription", wordInfo.transcription );
+//    query.bindValue( ":audio"        , wordInfo.audio);
+//    query.bindValue( ":is_learned"   , false );
+//
+//    if( !query.exec() )
+//    {
+//        qDebug() << query.lastError().text();
+//        return;
+//    }
+//
+//    std::shared_ptr< WordsData > wordData( new WordsData() );
+//
+//    query.exec( "select last_insert_rowid()" );
+//    query.next();
+//    wordData->id            = query.value( 0 ).toInt();
+//    wordData->word          = wordInfo.word;
+//    wordData->transcription = wordInfo.transcription;
+//    wordData->isLearned     = false;
 
     wordsModel->appendWord( wordData );
 }

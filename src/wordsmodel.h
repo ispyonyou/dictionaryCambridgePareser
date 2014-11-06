@@ -2,14 +2,7 @@
 #define WORDSMODEL_H
 
 #include <QAbstractTableModel>
-
-struct WordData
-{
-    int id;
-    QString word;
-    QString transcription;
-    bool isLearned;
-};
+#include "ContentProviders/wordscontentprovider.h"
 
 class WordsModelPrivate;
 
@@ -30,9 +23,9 @@ public:
     bool insertRows( int position, int rows, const QModelIndex& index = QModelIndex() );
     bool removeRows( int position, int rows, const QModelIndex& index = QModelIndex() );
 
-    void appendWord( std::shared_ptr< WordData > wordData );
+    void appendWord( std::shared_ptr< WordsData > wordData );
 
-    std::shared_ptr< WordData > getWordData( long row );
+    std::shared_ptr< WordsData > getWordData( long row );
 
 private:
     WordsModelPrivate& d;

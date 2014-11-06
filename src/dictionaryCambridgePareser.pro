@@ -21,7 +21,10 @@ SOURCES += main.cpp\
     third-party/mp3wrap/crc.c \
     third-party/mp3wrap/getopt.c \
     third-party/mp3wrap/mp3wrap.c \
-    third-party/mp3wrap/wrap.c
+    third-party/mp3wrap/wrap.c \
+    ContentProviders/wordscontentprovider.cpp \
+    dbutils.cpp \
+    ContentProviders/FieldDesc.cpp
 
 HEADERS  += widget.h \
     settingsdialog.h \
@@ -30,7 +33,11 @@ HEADERS  += widget.h \
     third-party/mp3wrap/crc.h \
     third-party/mp3wrap/getopt.h \
     third-party/mp3wrap/mp3wrap.h \
-    third-party/mp3wrap/wrap.h
+    third-party/mp3wrap/wrap.h \
+    ContentProviders/wordscontentprovider.h \
+    dbutils.h \
+    ContentProviders/FieldDesc.h \
+    CopyClearBase.h
 
 FORMS    += widget.ui \
     settings.ui
