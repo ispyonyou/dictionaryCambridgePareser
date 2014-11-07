@@ -4,6 +4,7 @@
 
 #include "wordsdata.h"
 #include <QList>
+#include <memory>
 
 class WordsContentProvider
 {

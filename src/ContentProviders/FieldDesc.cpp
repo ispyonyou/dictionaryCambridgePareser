@@ -180,7 +180,8 @@ QList< FieldDescItem > FieldDesc::enumerateItems( const QList< void* >& includeF
 
 bool FieldDesc::dbInsert()
 {
-    return dbInsert( QSqlQuery() );
+    QSqlQuery query;
+    return dbInsert( query );
 }
 
 bool FieldDesc::dbInsert( QSqlQuery& query )

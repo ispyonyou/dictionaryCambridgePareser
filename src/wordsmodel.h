@@ -3,6 +3,7 @@
 
 #include <QAbstractTableModel>
 #include "ContentProviders/wordsdata.h"
+#include <memory>
 
 class WordsModelPrivate;
 

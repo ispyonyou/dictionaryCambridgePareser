@@ -1,17 +1,11 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2014-11-03T16:45:44
-#
-#-------------------------------------------------
+QT       += core gui sql widgets network webkitwidgets
 
-QT       += core gui sql network webkitwidgets
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+#greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = dictionaryCambridgePareser
 TEMPLATE = app
 
-#QMAKE_EXT_CPP = .cpp
+CONFIG += c++11
 
 SOURCES += main.cpp\
         widget.cpp \

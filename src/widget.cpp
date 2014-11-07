@@ -7,12 +7,7 @@
 #include <QWebPage>
 #include <QWebFrame>
 #include <QWebElement>
-#include <QMediaPlayer>
-#include <QMediaPlaylist>
 #include <QBuffer>
-#include <QAudioRecorder>
-#include <QAudioProbe>
-#include <QAudioDecoder>
 #include <QFile>
 #include <QProcess>
 #include <QSqlDatabase>
@@ -27,12 +22,11 @@
 #include "ContentProviders/wordscontentprovider.h"
 #include "ContentProviders/sensescontentprovider.h"
 #include "ContentProviders/examplescontentprovider.h"
+#include "wordsmodel.h"
 
 extern "C" {
   #include "third-party/mp3wrap/mp3wrap.h"
 }
-
-#include "wordsmodel.h"
 
 class MainWidgetPrivate
 {
@@ -42,8 +36,8 @@ public:
 
 Widget::Widget(QWidget *parent)
     : QWidget(parent)
-    , d( *new MainWidgetPrivate() )
     , ui(new Ui::Widget)
+    , d( *new MainWidgetPrivate() )
 {
     d.cambridgeDictParser = new CambridgeDictionaryParser( this );
 

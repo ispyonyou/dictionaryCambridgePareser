@@ -2,6 +2,7 @@
 #define EXAMPLESCONTENTPROVIDER_H
 
 #include "examplesdata.h"
+#include <memory>
 
 class ExamplesContentProvider
 {

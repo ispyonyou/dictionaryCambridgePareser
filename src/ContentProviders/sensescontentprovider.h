@@ -3,6 +3,7 @@
 #define SENSESCONTENTPROVIDER_H
 
 #include "sencesdata.h"
+#include <memory>
 
 class SensesContentProvider
 {

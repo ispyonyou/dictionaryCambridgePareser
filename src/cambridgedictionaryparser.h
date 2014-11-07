@@ -4,6 +4,7 @@
 #include <QObject>
 #include "ContentProviders/wordsdata.h"
 #include "ContentProviders/sencesdata.h"
+#include <memory>
 
 struct CambridgeDictSenseInfo
 {
