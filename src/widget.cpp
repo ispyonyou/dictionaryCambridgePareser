@@ -23,6 +23,8 @@
 #include "ContentProviders/sensescontentprovider.h"
 #include "ContentProviders/examplescontentprovider.h"
 #include "wordsmodel.h"
+#include <QMediaPlayer>
+#include <QMediaPlaylist>
 
 extern "C" {
   #include "third-party/mp3wrap/mp3wrap.h"
@@ -31,7 +33,16 @@ extern "C" {
 class MainWidgetPrivate
 {
 public:
+    ~MainWidgetPrivate()
+    {
+        Q_FOREACH( int id, cachedAudio.keys() )
+            delete cachedAudio[ id ];
+    }
+
+public:
     CambridgeDictionaryParser* cambridgeDictParser;
+    QMediaPlayer* mediaPlayer;
+    QMap< int, QByteArray* > cachedAudio;
 };
 
 Widget::Widget(QWidget *parent)
@@ -40,12 +51,14 @@ Widget::Widget(QWidget *parent)
     , d( *new MainWidgetPrivate() )
 {
     d.cambridgeDictParser = new CambridgeDictionaryParser( this );
+    d.mediaPlayer = new QMediaPlayer( this );
 
     ui->setupUi(this);
 
     connect( ui->getItBtn, SIGNAL(clicked()), this, SLOT(getItClicked()));
     connect( ui->settingsBtn, SIGNAL(clicked()), this, SLOT(settingsClicked()));
     connect( ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()));
+    connect( ui->playBtn, SIGNAL(clicked()), this, SLOT(playClicked()));
 
     if( !createConnection() ){
         QMessageBox::critical( 0, qApp->tr( "Cannot open database" ),
@@ -228,4 +241,37 @@ void Widget::addWordClicked()
     }
 
     wordsModel->appendWord( wordData );
+}
+
+void Widget::playClicked()
+{
+    QModelIndexList selIndexes = ui->tableView->selectionModel()->selection().indexes();
+    QSet< int > selRows;
+    Q_FOREACH( const QModelIndex& index, selIndexes )
+    {
+        selRows.insert( index.row() );
+    }
+
+    if( selRows.empty() )
+        return;
+
+    WordsContentProvider wordsProvider;
+
+    int row = *selRows.begin();
+    int selWordId = wordsModel->getWordData( row )->id;
+
+    if( d.cachedAudio.end() == d.cachedAudio.find( selWordId ) )
+    {
+        QByteArray* audio = new QByteArray();
+        wordsProvider.loadAudio( selWordId, *audio );
+        d.cachedAudio[ selWordId ] = audio;
+    }
+
+    QBuffer* buffer = new QBuffer( d.cachedAudio[ selWordId ], this );
+    buffer->open( QIODevice::ReadOnly );
+
+    d.mediaPlayer->setMedia( QMediaContent(), buffer );
+
+    d.mediaPlayer->setVolume( 100 );
+    d.mediaPlayer->play();
 }

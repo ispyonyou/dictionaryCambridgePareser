@@ -23,6 +23,7 @@ public Q_SLOTS:
     void getItClicked();
     void settingsClicked();
     void addWordClicked();
+    void playClicked();
 
 private:
     Ui::Widget *ui;

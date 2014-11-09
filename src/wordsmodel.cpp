@@ -151,4 +151,3 @@ std::shared_ptr< WordsData > WordsModel::getWordData( long row )
 {
     return d.Words[ row ];
 }
-

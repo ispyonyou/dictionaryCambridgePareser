@@ -1,4 +1,4 @@
-QT       += core gui sql widgets network webkitwidgets
+QT       += core gui sql widgets network webkitwidgets multimedia
 
 #greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
