@@ -14,6 +14,7 @@ public:
     bool loadWords( QList< std::shared_ptr< WordsData > >& words );
     bool loadAudio( int wordId, QByteArray& audio );
     bool insertWord( std::shared_ptr< WordsData >& word );
+    bool updateIsLearned( std::shared_ptr< WordsData >& word );
 };
 
 #endif // WORDSCONTENTPROVIDER_H

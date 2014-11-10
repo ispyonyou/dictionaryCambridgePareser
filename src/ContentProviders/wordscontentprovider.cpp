@@ -73,3 +73,9 @@ bool WordsContentProvider::insertWord( std::shared_ptr< WordsData >& word )
     word->id = query.value( 0 ).toInt();
     return true;
 }
+
+bool WordsContentProvider::updateIsLearned( std::shared_ptr< WordsData >& word )
+{
+    WordsDesc desc( *word.get() );
+    return desc.dbUpdate( QList< void* >() << &desc.isLearned );
+}

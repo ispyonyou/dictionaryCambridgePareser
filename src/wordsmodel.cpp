@@ -1,4 +1,5 @@
 #include "wordsmodel.h"
+#include "ContentProviders/wordscontentprovider.h"
 
 class WordsModelPrivate
 {
@@ -57,6 +58,18 @@ QVariant WordsModel::data( const QModelIndex& index, int role ) const
         }
     }
 
+    if( Qt::CheckStateRole == role ) {
+        std::shared_ptr< WordsData > wordData = d.Words.at( index.row() );
+
+        switch( index.column() ) {
+            case Hid_WordModel_IsLearned:
+                return wordData->isLearned ? Qt::Checked : Qt::Unchecked;
+
+            default:
+                return QVariant();
+        }
+    }
+
     return QVariant();
 }
 
@@ -86,7 +99,12 @@ Qt::ItemFlags WordsModel::flags( const QModelIndex& index ) const
     if( !index.isValid() )
         return Qt::ItemIsEnabled;
 
-    return QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
+    Qt::ItemFlags ret = QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
+
+    if( index.column() == Hid_WordModel_IsLearned )
+        ret |= Qt::ItemIsUserCheckable;
+
+    return ret;
 }
 
 bool WordsModel::setData( const QModelIndex& index, const QVariant& value, int role )
@@ -106,6 +124,19 @@ bool WordsModel::setData( const QModelIndex& index, const QVariant& value, int r
 //
 //        listOfPairs.replace(row, p);
 //        emit(dataChanged(index, index));
+
+        return true;
+    }
+
+    if( index.isValid() && role == Qt::CheckStateRole ) {
+        if( index.column() == Hid_WordModel_IsLearned ) {
+            std::shared_ptr< WordsData > wordData = d.Words.at( index.row() );
+            wordData->isLearned = ( value.toInt() == Qt::Checked );
+
+            WordsContentProvider wordsProvider;
+            if( wordsProvider.updateIsLearned( wordData ) )
+                emit dataChanged( index, index );
+        }
 
         return true;
     }

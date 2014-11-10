@@ -63,7 +63,7 @@ public:
 
     bool dbInsert();
     bool dbInsert( QSqlQuery& query );
-    void dbUpdate();
+    bool dbUpdate( const QList< void* >& includeFields = QList< void* >() );
 
     void dbDropTable();
     bool dbDropTableSafe();

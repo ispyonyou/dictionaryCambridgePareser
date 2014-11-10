@@ -223,7 +223,7 @@ bool FieldDesc::dbInsert( QSqlQuery& query )
     return true;
 }
 
-void FieldDesc::dbUpdate()
+bool FieldDesc::dbUpdate( const QList< void* >& includeFields )
 {
     QList< FieldDescItem > items;
     enumerateItems( items );
@@ -233,11 +233,20 @@ void FieldDesc::dbUpdate()
 
     for( int i = 0; i < items.size(); i++ )
     {
-        if( items[ i ].IsPk )
+        if( items[ i ].IsPk ){
             pkeys.append( &items[ i ] );
-        else
-            notPkeys.append( &items[ i ] );
+        }
+        else {
+            if( !includeFields.empty() &&
+                 includeFields.end() != std::find( includeFields.begin(), includeFields.end(), items[ i ].buffValue() ) ) {
+                notPkeys.append( &items[ i ] );
+            }
+        }
     }
+
+    Q_ASSERT( !notPkeys.isEmpty() );
+    if( notPkeys.isEmpty() )
+        return false;
 
     QString queryStr = "UPDATE " + getTableName() + " SET ";
 
@@ -265,7 +274,7 @@ void FieldDesc::dbUpdate()
     for( int i = 0; i < items.size(); i++ )
         items[ i ].bindValue( query );
 
-    query.exec();
+    return query.exec();
 }
 
 void FieldDesc::dbDropTable()
