@@ -3,15 +3,15 @@
 
 #include <QMainWindow>
 
-class MainWidgetPrivate;
+class MainWindowPrivate;
 
-class Widget : public QMainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit Widget(QWidget *parent = 0);
-    ~Widget();
+    explicit MainWindow(QWidget *parent = 0);
+    ~MainWindow();
 
     int currentRow();
 
@@ -23,7 +23,7 @@ public Q_SLOTS:
     void wordsTableSelectionChanged();
 
 private:
-    MainWidgetPrivate& d;
+    MainWindowPrivate& d;
 };
 
 #endif // WIDGET_H

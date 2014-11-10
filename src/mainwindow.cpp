@@ -1,4 +1,4 @@
-#include "widget.h"
+#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
 #include <QNetworkAccessManager>
@@ -28,10 +28,10 @@
 #include <QMediaPlaylist>
 #include <QToolBar>
 
-class MainWidgetPrivate
+class MainWindowPrivate
 {
 public:
-    ~MainWidgetPrivate()
+    ~MainWindowPrivate()
     {
         Q_FOREACH( int id, cachedAudio.keys() )
             delete cachedAudio[ id ];
@@ -45,17 +45,23 @@ public:
     QMediaPlayer* mediaPlayer;
     QMap< int, QByteArray* > cachedAudio;
     Ui::MainWindow *ui;
+    QAction* actionPlay;
 };
 
-Widget::Widget(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow( parent )
-    , d( *new MainWidgetPrivate() )
+    , d( *new MainWindowPrivate() )
 {
     d.ui = new Ui::MainWindow;
     d.cambridgeDictParser = new CambridgeDictionaryParser( this );
     d.mediaPlayer = new QMediaPlayer( this );
 
     d.ui->setupUi(this);
+
+    connect( d.ui->addWordEdit, &QLineEdit::textChanged, [=]( const QString &text ){
+        d.ui->addWordBtn->setEnabled( !text.isEmpty() );
+    } );
+    d.ui->addWordBtn->setEnabled( !d.ui->addWordEdit->text().isEmpty() );
 
     connect( d.ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()) );
 
@@ -83,8 +89,8 @@ Widget::Widget(QWidget *parent)
 
     d.ui->webView->setUrl( QUrl( QStringLiteral( "about:blank" ) ) );
 
-    QAction* actionPlay = new QAction( QIcon(":res/icons/play.ico"), tr( "&Play" ), this );
-    connect( actionPlay, SIGNAL(triggered()), this, SLOT(playCurrentWord()) );
+    d.actionPlay = new QAction( QIcon(":res/icons/play.ico"), tr( "&Play" ), this );
+    connect( d.actionPlay, SIGNAL(triggered()), this, SLOT(playCurrentWord()) );
 
     QAction* actionGenerate = new QAction( QIcon(":res/icons/generate.ico"), tr( "&Generate mp3 and html" ), this );
     connect( actionGenerate, SIGNAL(triggered()), this, SLOT(generateMp3andHtml()) );
@@ -93,17 +99,19 @@ Widget::Widget(QWidget *parent)
     connect( actionSettings, SIGNAL(triggered()), this, SLOT(showSettings()) );
 
     QToolBar* mainToolBar = addToolBar( "Main" );
-    mainToolBar->addAction( actionPlay );
+    mainToolBar->addAction( d.actionPlay );
     mainToolBar->addAction( actionGenerate );
     mainToolBar->addAction( actionSettings );
+
+    d.actionPlay->setEnabled( currentRow() != -1 );
 }
 
-Widget::~Widget()
+MainWindow::~MainWindow()
 {
     delete &d;
 }
 
-int Widget::currentRow()
+int MainWindow::currentRow()
 {
     QModelIndexList selIndexes = d.ui->tableView->selectionModel()->selection().indexes();
     QSet< int > selRows;
@@ -118,7 +126,7 @@ int Widget::currentRow()
     return *selRows.begin();
 }
 
-void Widget::generateMp3andHtml()
+void MainWindow::generateMp3andHtml()
 {
     QDate curDate = QDate::currentDate();
     QTime curTime = QTime::currentTime();
@@ -173,7 +181,7 @@ void Widget::generateMp3andHtml()
     htmlFile.write( html.toUtf8() );
 }
 
-void Widget::showSettings()
+void MainWindow::showSettings()
 {
     SettingsDialog* settingsDlg = new SettingsDialog();
     settingsDlg->exec();
@@ -181,9 +189,9 @@ void Widget::showSettings()
     settingsDlg->deleteLater();
 }
 
-void Widget::addWordClicked()
+void MainWindow::addWordClicked()
 {
-    QString word = d.ui->addWordEdit->text();
+    QString word = d.ui->addWordEdit->text().trimmed();
 
     CambridgeDictWordInfo wordInfo;
     if( !d.cambridgeDictParser->loadWordInfo( word, wordInfo ) )
@@ -215,14 +223,13 @@ void Widget::addWordClicked()
     d.wordsModel->appendWord( wordData );
 }
 
-void Widget::playCurrentWord()
+void MainWindow::playCurrentWord()
 {
-    int row = currentRow();
-    if( -1 == row )
+    if( -1 == currentRow() )
         return;
 
     WordsContentProvider wordsProvider;
-    int selWordId = d.wordsModel->getWordData( row )->id;
+    int selWordId = d.wordsModel->getWordData( currentRow() )->id;
 
     if( d.cachedAudio.end() == d.cachedAudio.find( selWordId ) )
     {
@@ -240,13 +247,13 @@ void Widget::playCurrentWord()
     d.mediaPlayer->play();
 }
 
-void Widget::wordsTableSelectionChanged()
+void MainWindow::wordsTableSelectionChanged()
 {
-    int row = currentRow();
-    if( -1 == row )
+    d.actionPlay->setEnabled( currentRow() != -1 );
+    if( -1 == currentRow() )
         return;
 
-    std::shared_ptr< WordsData > word = d.wordsModel->getWordData( row );
+    std::shared_ptr< WordsData > word = d.wordsModel->getWordData( currentRow() );
 
     WordsContentProvider wordsProvider;
     QString html = wordsProvider.generateHtml( word );

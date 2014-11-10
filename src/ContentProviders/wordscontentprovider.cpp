@@ -142,7 +142,7 @@ QString WordsContentProvider::generateHtml( const QList< std::shared_ptr< WordsD
                              .arg( sense->translation );
         }
 
-        html += "</div>";
+        html += "</div><br/>";
     }
 
     html += "</body>"

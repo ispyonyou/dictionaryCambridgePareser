@@ -8,7 +8,7 @@ TEMPLATE = app
 CONFIG += c++11
 
 SOURCES += main.cpp\
-        widget.cpp \
+        mainwindow.cpp \
     settingsdialog.cpp \
     wordsmodel.cpp \
     cambridgedictionaryparser.cpp \
@@ -20,7 +20,7 @@ SOURCES += main.cpp\
     webviewwitheditablesizehint.cpp \
     mp3wrap.cpp
 
-HEADERS  += widget.h \
+HEADERS  += mainwindow.h \
     settingsdialog.h \
     wordsmodel.h \
     cambridgedictionaryparser.h \
@@ -36,7 +36,7 @@ HEADERS  += widget.h \
     webviewwitheditablesizehint.h \
     mp3wrap.h
 
-FORMS    += widget.ui \
+FORMS    += \
     settings.ui \
     mainwindow.ui
 

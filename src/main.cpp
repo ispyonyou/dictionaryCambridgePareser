@@ -1,4 +1,4 @@
-#include "widget.h"
+#include "mainwindow.h"
 #include <QApplication>
 #include <QNetworkProxyFactory>
 
@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
 
     QNetworkProxyFactory::setUseSystemConfiguration( true );
 
-    Widget w;
+    MainWindow w;
     w.show();
 
     return a.exec();

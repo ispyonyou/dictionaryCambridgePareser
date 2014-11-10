@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>AVS English Dictionary</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QHBoxLayout" name="horizontalLayout_2">
@@ -59,8 +59,9 @@
    </property>
    <widget class="QMenu" name="menuAsd">
     <property name="title">
-     <string>asd</string>
+     <string>&amp;Help</string>
     </property>
+    <addaction name="action_About"/>
    </widget>
    <addaction name="menuAsd"/>
   </widget>
@@ -89,6 +90,11 @@
     </layout>
    </widget>
   </widget>
+  <action name="action_About">
+   <property name="text">
+    <string>&amp;About</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
