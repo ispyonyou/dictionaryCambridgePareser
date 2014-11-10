@@ -12,25 +12,18 @@ SOURCES += main.cpp\
     settingsdialog.cpp \
     wordsmodel.cpp \
     cambridgedictionaryparser.cpp \
-    third-party/mp3wrap/crc.c \
-    third-party/mp3wrap/getopt.c \
-    third-party/mp3wrap/mp3wrap.c \
-    third-party/mp3wrap/wrap.c \
     ContentProviders/wordscontentprovider.cpp \
     dbutils.cpp \
     ContentProviders/FieldDesc.cpp \
     ContentProviders/sensescontentprovider.cpp \
     ContentProviders/examplescontentprovider.cpp \
-    webviewwitheditablesizehint.cpp
+    webviewwitheditablesizehint.cpp \
+    mp3wrap.cpp
 
 HEADERS  += widget.h \
     settingsdialog.h \
     wordsmodel.h \
     cambridgedictionaryparser.h \
-    third-party/mp3wrap/crc.h \
-    third-party/mp3wrap/getopt.h \
-    third-party/mp3wrap/mp3wrap.h \
-    third-party/mp3wrap/wrap.h \
     ContentProviders/wordscontentprovider.h \
     dbutils.h \
     ContentProviders/FieldDesc.h \
@@ -40,8 +33,12 @@ HEADERS  += widget.h \
     ContentProviders/sencesdata.h \
     ContentProviders/examplescontentprovider.h \
     ContentProviders/examplesdata.h \
-    webviewwitheditablesizehint.h
+    webviewwitheditablesizehint.h \
+    mp3wrap.h
 
 FORMS    += widget.ui \
     settings.ui \
     mainwindow.ui
+
+RESOURCES += \
+    resources.qrc

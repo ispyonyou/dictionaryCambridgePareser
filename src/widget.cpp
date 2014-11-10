@@ -23,12 +23,13 @@
 #include "ContentProviders/sensescontentprovider.h"
 #include "ContentProviders/examplescontentprovider.h"
 #include "wordsmodel.h"
+#include "mp3wrap.h"
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 
-extern "C" {
-  #include "third-party/mp3wrap/mp3wrap.h"
-}
+//extern "C" {
+//  #include "third-party/mp3wrap/mp3wrap.h"
+//}
 
 class MainWidgetPrivate
 {
@@ -118,10 +119,20 @@ void Widget::getItClicked()
                                                        .arg( curTime.minute() )
                                                        .arg( curTime.second() );
 
-    QStringList mp3wrapArgs;
-    mp3wrapArgs.append( "album_" + curTimeStr + ".mp3" );
+    Mp3Wrap wrap;
+    wrap.setOutFile( "album_" + curTimeStr + ".mp3" );
 
     WordsContentProvider wordsProvider;
+
+    QFile nullSoundFile( ":/res/nullSound.mp3" );
+    if( !nullSoundFile.open( QFile::ReadOnly ) ) {
+        qDebug() << "failed to open res/nullSound.mp3";
+        return;
+    }
+
+    QByteArray nullSound = nullSoundFile.readAll();
+
+    wrap.addSource( nullSound );
 
     for( int i = 0; i < wordsModel->rowCount( QModelIndex() ); i++ )
     {
@@ -130,30 +141,14 @@ void Widget::getItClicked()
         QByteArray audio;
         wordsProvider.loadAudio( wordData->id, audio );
 
-        QString fileName = wordData->word + ".mp3" ;
-        QFile outFile(  fileName );
-        outFile.open( QFile::WriteOnly );
-        outFile.write( audio );
-
         for( long i = 0; i < 3; i++ )
         {
-            mp3wrapArgs.append( fileName );
-            mp3wrapArgs.append( "nullSound.mp3" );
+            wrap.addSource( audio );
+            wrap.addSource( nullSound );
         }
     }
 
-    char** args = new char*[ mp3wrapArgs.size() + 1 ];
-    args[0] = new char[ 1 ];
-    args[0][0] = '\0';
-
-    for( long i = 0; i < mp3wrapArgs.size(); i++ )
-    {
-        args[i+1] = new char[ mp3wrapArgs[ i ].length() + 1 ];
-        strcpy_s( args[i+1], mp3wrapArgs[ i ].length() + 1, mp3wrapArgs[ i ].toLatin1() );
-        args[i+1][mp3wrapArgs[ i ].length()] = '\0';
-    }
-
-    mp3wrapp( mp3wrapArgs.size() + 1, args );
+    wrap.doWrap();
 
     QString html;
 
