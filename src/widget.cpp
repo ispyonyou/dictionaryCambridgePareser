@@ -81,6 +81,8 @@ Widget::Widget(QWidget *parent)
     ui->tableView->setModel( wordsModel );
 
     connect( ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
+
+    ui->webView->setUrl( QUrl( QStringLiteral( "about:blank" ) ) );
 }
 
 Widget::~Widget()

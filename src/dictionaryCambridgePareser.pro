@@ -20,7 +20,8 @@ SOURCES += main.cpp\
     dbutils.cpp \
     ContentProviders/FieldDesc.cpp \
     ContentProviders/sensescontentprovider.cpp \
-    ContentProviders/examplescontentprovider.cpp
+    ContentProviders/examplescontentprovider.cpp \
+    webviewwitheditablesizehint.cpp
 
 HEADERS  += widget.h \
     settingsdialog.h \
@@ -38,7 +39,8 @@ HEADERS  += widget.h \
     ContentProviders/wordsdata.h \
     ContentProviders/sencesdata.h \
     ContentProviders/examplescontentprovider.h \
-    ContentProviders/examplesdata.h
+    ContentProviders/examplesdata.h \
+    webviewwitheditablesizehint.h
 
 FORMS    += widget.ui \
     settings.ui \
