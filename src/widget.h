@@ -1,17 +1,17 @@
 #ifndef WIDGET_H
 #define WIDGET_H
 
-#include <QWidget>
+#include <QMainWindow>
 
 namespace Ui {
-class Widget;
+class MainWindow;
 }
 
 class WordsModel;
 
 class MainWidgetPrivate;
 
-class Widget : public QWidget
+class Widget : public QMainWindow
 {
     Q_OBJECT
 
@@ -19,14 +19,17 @@ public:
     explicit Widget(QWidget *parent = 0);
     ~Widget();
 
+    int currentRow();
+
 public Q_SLOTS:
     void getItClicked();
     void settingsClicked();
     void addWordClicked();
     void playClicked();
+    void wordsTableSelectionChanged();
 
 private:
-    Ui::Widget *ui;
+    Ui::MainWindow *ui;
     WordsModel* wordsModel;
 
     MainWidgetPrivate& d;

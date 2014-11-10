@@ -41,4 +41,5 @@ HEADERS  += widget.h \
     ContentProviders/examplesdata.h
 
 FORMS    += widget.ui \
-    settings.ui
+    settings.ui \
+    mainwindow.ui

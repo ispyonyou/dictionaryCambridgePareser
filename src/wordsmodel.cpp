@@ -99,7 +99,7 @@ Qt::ItemFlags WordsModel::flags( const QModelIndex& index ) const
     if( !index.isValid() )
         return Qt::ItemIsEnabled;
 
-    Qt::ItemFlags ret = QAbstractTableModel::flags( index ) | Qt::ItemIsEditable;
+    Qt::ItemFlags ret = QAbstractTableModel::flags( index );
 
     if( index.column() == Hid_WordModel_IsLearned )
         ret |= Qt::ItemIsUserCheckable;
@@ -109,7 +109,6 @@ Qt::ItemFlags WordsModel::flags( const QModelIndex& index ) const
 
 bool WordsModel::setData( const QModelIndex& index, const QVariant& value, int role )
 {
-    Q_UNUSED( value );
     if (index.isValid() && role == Qt::EditRole) {
 //        int row = index.row();
 //

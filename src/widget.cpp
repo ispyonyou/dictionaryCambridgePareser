@@ -1,5 +1,5 @@
 #include "widget.h"
-#include "ui_widget.h"
+#include "ui_mainwindow.h"
 #include "settingsdialog.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
@@ -46,8 +46,8 @@ public:
 };
 
 Widget::Widget(QWidget *parent)
-    : QWidget(parent)
-    , ui(new Ui::Widget)
+    : QMainWindow( parent )
+    , ui( new Ui::MainWindow )
     , d( *new MainWidgetPrivate() )
 {
     d.cambridgeDictParser = new CambridgeDictionaryParser( this );
@@ -55,10 +55,10 @@ Widget::Widget(QWidget *parent)
 
     ui->setupUi(this);
 
-    connect( ui->getItBtn, SIGNAL(clicked()), this, SLOT(getItClicked()));
-    connect( ui->settingsBtn, SIGNAL(clicked()), this, SLOT(settingsClicked()));
-    connect( ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()));
-    connect( ui->playBtn, SIGNAL(clicked()), this, SLOT(playClicked()));
+    connect( ui->getItBtn, SIGNAL(clicked()), this, SLOT(getItClicked()) );
+    connect( ui->settingsBtn, SIGNAL(clicked()), this, SLOT(settingsClicked()) );
+    connect( ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()) );
+    connect( ui->playBtn, SIGNAL(clicked()), this, SLOT(playClicked()) );
 
     if( !createConnection() ){
         QMessageBox::critical( 0, qApp->tr( "Cannot open database" ),
@@ -79,12 +79,29 @@ Widget::Widget(QWidget *parent)
     }
 
     ui->tableView->setModel( wordsModel );
+
+    connect( ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
 }
 
 Widget::~Widget()
 {
     delete ui;
     delete &d;
+}
+
+int Widget::currentRow()
+{
+    QModelIndexList selIndexes = ui->tableView->selectionModel()->selection().indexes();
+    QSet< int > selRows;
+    Q_FOREACH( const QModelIndex& index, selIndexes )
+    {
+        selRows.insert( index.row() );
+    }
+
+    if( selRows.empty() )
+        return -1;
+
+    return *selRows.begin();
 }
 
 void Widget::getItClicked()
@@ -274,4 +291,18 @@ void Widget::playClicked()
 
     d.mediaPlayer->setVolume( 100 );
     d.mediaPlayer->play();
+}
+
+void Widget::wordsTableSelectionChanged()
+{
+    int row = currentRow();
+    if( -1 == row )
+        return;
+
+    std::shared_ptr< WordsData > word = wordsModel->getWordData( row );
+
+    WordsContentProvider wordsProvider;
+    QString html = wordsProvider.generateHtml( word );
+
+    ui->webView->setHtml( html );
 }
