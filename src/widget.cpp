@@ -26,6 +26,7 @@
 #include "mp3wrap.h"
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
+#include <QToolBar>
 
 class MainWidgetPrivate
 {
@@ -56,10 +57,7 @@ Widget::Widget(QWidget *parent)
 
     d.ui->setupUi(this);
 
-    connect( d.ui->getItBtn, SIGNAL(clicked()), this, SLOT(getItClicked()) );
-    connect( d.ui->settingsBtn, SIGNAL(clicked()), this, SLOT(settingsClicked()) );
     connect( d.ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()) );
-    connect( d.ui->playBtn, SIGNAL(clicked()), this, SLOT(playClicked()) );
 
     if( !createConnection() ){
         QMessageBox::critical( 0, qApp->tr( "Cannot open database" ),
@@ -84,6 +82,20 @@ Widget::Widget(QWidget *parent)
     connect( d.ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
 
     d.ui->webView->setUrl( QUrl( QStringLiteral( "about:blank" ) ) );
+
+    QAction* actionPlay = new QAction( QIcon(":res/icons/play.ico"), tr( "&Play" ), this );
+    connect( actionPlay, SIGNAL(triggered()), this, SLOT(playCurrentWord()) );
+
+    QAction* actionGenerate = new QAction( QIcon(":res/icons/generate.ico"), tr( "&Generate mp3 and html" ), this );
+    connect( actionGenerate, SIGNAL(triggered()), this, SLOT(generateMp3andHtml()) );
+
+    QAction* actionSettings = new QAction( QIcon(":res/icons/settings.ico"), tr( "&Settings" ), this );
+    connect( actionSettings, SIGNAL(triggered()), this, SLOT(showSettings()) );
+
+    QToolBar* mainToolBar = addToolBar( "Main" );
+    mainToolBar->addAction( actionPlay );
+    mainToolBar->addAction( actionGenerate );
+    mainToolBar->addAction( actionSettings );
 }
 
 Widget::~Widget()
@@ -106,7 +118,7 @@ int Widget::currentRow()
     return *selRows.begin();
 }
 
-void Widget::getItClicked()
+void Widget::generateMp3andHtml()
 {
     QDate curDate = QDate::currentDate();
     QTime curTime = QTime::currentTime();
@@ -161,7 +173,7 @@ void Widget::getItClicked()
     htmlFile.write( html.toUtf8() );
 }
 
-void Widget::settingsClicked()
+void Widget::showSettings()
 {
     SettingsDialog* settingsDlg = new SettingsDialog();
     settingsDlg->exec();
@@ -203,7 +215,7 @@ void Widget::addWordClicked()
     d.wordsModel->appendWord( wordData );
 }
 
-void Widget::playClicked()
+void Widget::playCurrentWord()
 {
     int row = currentRow();
     if( -1 == row )

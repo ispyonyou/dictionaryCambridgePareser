@@ -16,10 +16,10 @@ public:
     int currentRow();
 
 public Q_SLOTS:
-    void getItClicked();
-    void settingsClicked();
+    void generateMp3andHtml();
+    void showSettings();
     void addWordClicked();
-    void playClicked();
+    void playCurrentWord();
     void wordsTableSelectionChanged();
 
 private:
