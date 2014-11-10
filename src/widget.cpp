@@ -27,10 +27,6 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 
-//extern "C" {
-//  #include "third-party/mp3wrap/mp3wrap.h"
-//}
-
 class MainWidgetPrivate
 {
 public:
@@ -38,28 +34,32 @@ public:
     {
         Q_FOREACH( int id, cachedAudio.keys() )
             delete cachedAudio[ id ];
+
+        delete ui;
     }
 
 public:
     CambridgeDictionaryParser* cambridgeDictParser;
+    WordsModel* wordsModel;
     QMediaPlayer* mediaPlayer;
     QMap< int, QByteArray* > cachedAudio;
+    Ui::MainWindow *ui;
 };
 
 Widget::Widget(QWidget *parent)
     : QMainWindow( parent )
-    , ui( new Ui::MainWindow )
     , d( *new MainWidgetPrivate() )
 {
+    d.ui = new Ui::MainWindow;
     d.cambridgeDictParser = new CambridgeDictionaryParser( this );
     d.mediaPlayer = new QMediaPlayer( this );
 
-    ui->setupUi(this);
+    d.ui->setupUi(this);
 
-    connect( ui->getItBtn, SIGNAL(clicked()), this, SLOT(getItClicked()) );
-    connect( ui->settingsBtn, SIGNAL(clicked()), this, SLOT(settingsClicked()) );
-    connect( ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()) );
-    connect( ui->playBtn, SIGNAL(clicked()), this, SLOT(playClicked()) );
+    connect( d.ui->getItBtn, SIGNAL(clicked()), this, SLOT(getItClicked()) );
+    connect( d.ui->settingsBtn, SIGNAL(clicked()), this, SLOT(settingsClicked()) );
+    connect( d.ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()) );
+    connect( d.ui->playBtn, SIGNAL(clicked()), this, SLOT(playClicked()) );
 
     if( !createConnection() ){
         QMessageBox::critical( 0, qApp->tr( "Cannot open database" ),
@@ -68,7 +68,7 @@ Widget::Widget(QWidget *parent)
         qApp->quit();
     }
 
-    wordsModel = new WordsModel();
+    d.wordsModel = new WordsModel();
 
     QList< std::shared_ptr< WordsData > > words;
 
@@ -76,25 +76,24 @@ Widget::Widget(QWidget *parent)
     wordsProvider.loadWords( words );
 
     Q_FOREACH( std::shared_ptr< WordsData > word, words ) {
-        wordsModel->appendWord( word );
+        d.wordsModel->appendWord( word );
     }
 
-    ui->tableView->setModel( wordsModel );
+    d.ui->tableView->setModel( d.wordsModel );
 
-    connect( ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
+    connect( d.ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
 
-    ui->webView->setUrl( QUrl( QStringLiteral( "about:blank" ) ) );
+    d.ui->webView->setUrl( QUrl( QStringLiteral( "about:blank" ) ) );
 }
 
 Widget::~Widget()
 {
-    delete ui;
     delete &d;
 }
 
 int Widget::currentRow()
 {
-    QModelIndexList selIndexes = ui->tableView->selectionModel()->selection().indexes();
+    QModelIndexList selIndexes = d.ui->tableView->selectionModel()->selection().indexes();
     QSet< int > selRows;
     Q_FOREACH( const QModelIndex& index, selIndexes )
     {
@@ -134,9 +133,8 @@ void Widget::getItClicked()
 
     wrap.addSource( nullSound );
 
-    for( int i = 0; i < wordsModel->rowCount( QModelIndex() ); i++ )
-    {
-        std::shared_ptr< WordsData > wordData = wordsModel->getWordData( i );
+    for( int i = 0; i < d.wordsModel->rowCount( QModelIndex() ); i++ ) {
+        std::shared_ptr< WordsData > wordData = d.wordsModel->getWordData( i );
 
         QByteArray audio;
         wordsProvider.loadAudio( wordData->id, audio );
@@ -150,64 +148,12 @@ void Widget::getItClicked()
 
     wrap.doWrap();
 
-    QString html;
-
-    html += "<!DOCTYPE html>"
-            "<html lang=\"en\">"
-            "<head>"
-            "  <meta charset=\"utf-8\" /> "
-            "  <style>"
-            "    .wordArea {"
-            "    }"
-            "    .word {"""
-            "      font: 22pt sans-serif; "
-            "    }"
-            "    .transcrypt{"
-            "      font: 18pt monospace; "
-            "    }"
-            "    .senses{"
-            "      position: relative; "
-            "      left: 20px;"
-            "      font: 14pt sans-serif; "
-            "    }"
-            "  </style> "
-            "</head>"
-            "<body>";
-
-    SensesContentProvider sensesProvider;
-    ExamplesContentProvider examplesProvider;
-
-    for( int i = 0; i < wordsModel->rowCount( QModelIndex() ); i++ )
-    {
-        std::shared_ptr< WordsData > wordData = wordsModel->getWordData( i );
-
-        QString header =  "<div class=\"wordArea\">"
-                            "<div>"
-                              "<span class=\"word\"> %1 </span><span class=\"transcrypt\">/%2/</span>"
-                            "</div>"
-                          "</div>";
-
-        html += header.arg( wordData->word )
-                      .arg( wordData->transcription );
-
-        QList< std::shared_ptr< SensesData > > senses;
-        sensesProvider.loadSenses( wordData->id, senses );
-
-        html += "<div class=\"senses\">";
-
-        Q_FOREACH( std::shared_ptr< SensesData > sense, senses )
-        {
-            QString senseHtml = "<li>%1<br/>%2</li>";
-
-            html += senseHtml.arg( sense->defenition )
-                             .arg( sense->translation );
-        }
-
-        html += "</div>";
+    QList< std::shared_ptr< WordsData > > words;
+    for( int i = 0; i < d.wordsModel->rowCount( QModelIndex() ); i++ ) {
+        words.append( d.wordsModel->getWordData( i ) );
     }
 
-    html += "</body>"
-            "</html>";
+    QString html = wordsProvider.generateHtml( words );
 
     QFile htmlFile( "html_" + curTimeStr + ".html" );
     htmlFile.open( QFile::WriteOnly );
@@ -225,7 +171,7 @@ void Widget::settingsClicked()
 
 void Widget::addWordClicked()
 {
-    QString word = ui->addWordEdit->text();
+    QString word = d.ui->addWordEdit->text();
 
     CambridgeDictWordInfo wordInfo;
     if( !d.cambridgeDictParser->loadWordInfo( word, wordInfo ) )
@@ -254,25 +200,17 @@ void Widget::addWordClicked()
         }
     }
 
-    wordsModel->appendWord( wordData );
+    d.wordsModel->appendWord( wordData );
 }
 
 void Widget::playClicked()
 {
-    QModelIndexList selIndexes = ui->tableView->selectionModel()->selection().indexes();
-    QSet< int > selRows;
-    Q_FOREACH( const QModelIndex& index, selIndexes )
-    {
-        selRows.insert( index.row() );
-    }
-
-    if( selRows.empty() )
+    int row = currentRow();
+    if( -1 == row )
         return;
 
     WordsContentProvider wordsProvider;
-
-    int row = *selRows.begin();
-    int selWordId = wordsModel->getWordData( row )->id;
+    int selWordId = d.wordsModel->getWordData( row )->id;
 
     if( d.cachedAudio.end() == d.cachedAudio.find( selWordId ) )
     {
@@ -296,10 +234,10 @@ void Widget::wordsTableSelectionChanged()
     if( -1 == row )
         return;
 
-    std::shared_ptr< WordsData > word = wordsModel->getWordData( row );
+    std::shared_ptr< WordsData > word = d.wordsModel->getWordData( row );
 
     WordsContentProvider wordsProvider;
     QString html = wordsProvider.generateHtml( word );
 
-    ui->webView->setHtml( html );
+    d.ui->webView->setHtml( html );
 }

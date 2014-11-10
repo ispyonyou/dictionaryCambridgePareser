@@ -3,12 +3,6 @@
 
 #include <QMainWindow>
 
-namespace Ui {
-class MainWindow;
-}
-
-class WordsModel;
-
 class MainWidgetPrivate;
 
 class Widget : public QMainWindow
@@ -29,9 +23,6 @@ public Q_SLOTS:
     void wordsTableSelectionChanged();
 
 private:
-    Ui::MainWindow *ui;
-    WordsModel* wordsModel;
-
     MainWidgetPrivate& d;
 };
 
