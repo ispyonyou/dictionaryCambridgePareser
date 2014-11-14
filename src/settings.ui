@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>554</width>
-    <height>129</height>
+    <height>154</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,6 +93,13 @@
       </spacer>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="showLearnedChB">
+     <property name="text">
+      <string>Show learned words</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QCheckBox" name="genLearnedChBox">

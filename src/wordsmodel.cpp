@@ -57,8 +57,7 @@ QVariant WordsModel::data( const QModelIndex& index, int role ) const
                 return QVariant();
         }
     }
-
-    if( Qt::CheckStateRole == role ) {
+    else if( Qt::CheckStateRole == role ) {
         std::shared_ptr< WordsData > wordData = d.Words.at( index.row() );
 
         switch( index.column() ) {
@@ -68,6 +67,9 @@ QVariant WordsModel::data( const QModelIndex& index, int role ) const
             default:
                 return QVariant();
         }
+    }
+    else if( WordIdRole == role ) {
+        return d.Words.at( index.row() )->id;
     }
 
     return QVariant();
@@ -168,4 +170,37 @@ int WordsModel::appendWord( std::shared_ptr< WordsData > wordData )
 std::shared_ptr< WordsData > WordsModel::getWordData( long row )
 {
     return d.Words[ row ];
+}
+
+std::shared_ptr< WordsData > WordsModel::getWordDataById( int id )
+{
+    auto it = std::find_if( d.Words.begin(), d.Words.end(), [=]( const std::shared_ptr< WordsData >& w ){ return w->id == id; } );
+    if( it != d.Words.end() )
+        return *it;
+
+    return std::shared_ptr< WordsData >( nullptr );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+WordsSortFilterProxyModel::WordsSortFilterProxyModel( QObject* parent )
+    : QSortFilterProxyModel( parent )
+    , needShowLearned( true )
+{}
+
+void WordsSortFilterProxyModel::setNeedShowLearned( bool val )
+{
+    if( needShowLearned == val )
+        return;
+
+    needShowLearned = val;
+    invalidateFilter();
+}
+
+bool WordsSortFilterProxyModel::filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const
+{
+    QModelIndex index = sourceModel()->index(sourceRow, Hid_WordModel_IsLearned, sourceParent);
+    if( !needShowLearned && sourceModel()->data( index ).toBool() )
+        return false;
+
+    return true;
 }

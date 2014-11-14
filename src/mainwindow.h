@@ -13,8 +13,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    int currentRow();
-
 public Q_SLOTS:
     void generateMp3andHtml();
     void showSettings();

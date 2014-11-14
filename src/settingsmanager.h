@@ -19,6 +19,9 @@ public:
     bool needGenerateLearned();
     void setNeedGenerateLearned( bool val );
 
+    bool needShowLearned();
+    void setNeedShowLearned( bool val );
+
 private:
     QSettings* settings;
 };

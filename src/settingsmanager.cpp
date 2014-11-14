@@ -6,6 +6,7 @@
 #define SETTINGS_WORKING_DIR   "workingDirectory"
 #define SETTINGS_REPEATS_COUNT "repeatsCount"
 #define SETTINGS_GEN_LEARNED   "generateInfoForLearned"
+#define SETTINGS_SHOW_LEARNED  "showLearned"
 
 SettingsManager::SettingsManager( QObject* parent )
     : QObject( parent )
@@ -41,4 +42,14 @@ bool SettingsManager::needGenerateLearned()
 void SettingsManager::setNeedGenerateLearned( bool val )
 {
     settings->setValue( SETTINGS_GEN_LEARNED, val );
+}
+
+bool SettingsManager::needShowLearned()
+{
+    return settings->value( SETTINGS_SHOW_LEARNED, true ).toBool();
+}
+
+void SettingsManager::setNeedShowLearned( bool val )
+{
+    settings->setValue( SETTINGS_SHOW_LEARNED, val );
 }

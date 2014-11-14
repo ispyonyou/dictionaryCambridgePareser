@@ -2,6 +2,7 @@
 #define WORDSMODEL_H
 
 #include <QAbstractTableModel>
+#include <QSortFilterProxyModel>
 #include "ContentProviders/wordsdata.h"
 #include <memory>
 
@@ -27,6 +28,11 @@ public:
     int appendWord( std::shared_ptr< WordsData > wordData );
 
     std::shared_ptr< WordsData > getWordData( long row );
+    std::shared_ptr< WordsData > getWordDataById( int id );
+
+    enum {
+        WordIdRole = Qt::UserRole + 1,
+    };
 
 private:
     WordsModelPrivate& d;
@@ -38,5 +44,21 @@ enum enWordModelHids {
     Hid_WordModel_IsLearned     = 2,
 };
 
+class WordsSortFilterProxyModel : public QSortFilterProxyModel
+{
+    Q_OBJECT
+
+public:
+    WordsSortFilterProxyModel( QObject* parent = 0 );
+
+    void setNeedShowLearned( bool val );
+
+protected:
+    bool filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent) const;
+//    bool lessThan( const QModelIndex& left, const QModelIndex& right) const;
+
+private:
+    bool needShowLearned;
+};
 
 #endif // WORDSMODEL_H

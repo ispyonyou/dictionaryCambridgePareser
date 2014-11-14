@@ -43,9 +43,31 @@ public:
         delete ui;
     }
 
+    int currentRow()
+    {
+        QModelIndexList selIndexes = ui->tableView->selectionModel()->selection().indexes();
+        QSet< int > selRows;
+        Q_FOREACH( const QModelIndex& index, selIndexes )
+        {
+            selRows.insert( index.row() );
+        }
+
+        if( selRows.empty() )
+            return -1;
+
+        return *selRows.begin();
+    }
+
+    std::shared_ptr< WordsData > currentRowData()
+    {
+        int wordId = proxyModel->data( proxyModel->index( currentRow(), 0 ), WordsModel::WordIdRole ).toInt();
+        return wordsModel->getWordDataById( wordId );
+    }
+
 public:
     CambridgeDictionaryParser* cambridgeDictParser;
     WordsModel* wordsModel;
+    WordsSortFilterProxyModel* proxyModel;
     QMediaPlayer* mediaPlayer;
     QMap< int, QByteArray* > cachedAudio;
     Ui::MainWindow *ui;
@@ -93,10 +115,11 @@ MainWindow::MainWindow(QWidget *parent)
         d.wordsModel->appendWord( word );
     }
 
-    QSortFilterProxyModel* proxyModel = new QSortFilterProxyModel( this );
-    proxyModel->setSourceModel( d.wordsModel );
+    d.proxyModel = new WordsSortFilterProxyModel( this );
+    d.proxyModel->setNeedShowLearned( SettingsManager().needShowLearned() );
+    d.proxyModel->setSourceModel( d.wordsModel );
 
-    d.ui->tableView->setModel( proxyModel );
+    d.ui->tableView->setModel( d.proxyModel );
 
     d.ui->tableView->setSortingEnabled( true );
     d.ui->tableView->horizontalHeader()->setSortIndicator( Hid_WordModel_Word, Qt::AscendingOrder );
@@ -123,8 +146,8 @@ MainWindow::MainWindow(QWidget *parent)
     mainToolBar->addAction( actionGenerate );
     mainToolBar->addAction( actionSettings );
 
-    d.actionPlay->setEnabled( currentRow() != -1 );
-    d.actionRemove->setEnabled( currentRow() != -1 );
+    d.actionPlay->setEnabled( d.currentRow() != -1 );
+    d.actionRemove->setEnabled( d.currentRow() != -1 );
 
     connect( d.ui->action_About, &QAction::triggered, []( bool ){ AboutDialog().exec(); } );
 }
@@ -132,21 +155,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete &d;
-}
-
-int MainWindow::currentRow()
-{
-    QModelIndexList selIndexes = d.ui->tableView->selectionModel()->selection().indexes();
-    QSet< int > selRows;
-    Q_FOREACH( const QModelIndex& index, selIndexes )
-    {
-        selRows.insert( index.row() );
-    }
-
-    if( selRows.empty() )
-        return -1;
-
-    return *selRows.begin();
 }
 
 void MainWindow::generateMp3andHtml()
@@ -217,6 +225,8 @@ void MainWindow::showSettings()
     settingsDlg->exec();
 
     settingsDlg->deleteLater();
+
+    d.proxyModel->setNeedShowLearned( SettingsManager().needShowLearned() );
 }
 
 void MainWindow::addWord( const QString& wordSource )
@@ -258,11 +268,11 @@ void MainWindow::addWord( const QString& wordSource )
 
 void MainWindow::playCurrentWord()
 {
-    if( -1 == currentRow() )
+    if( -1 == d.currentRow() )
         return;
 
     WordsContentProvider wordsProvider;
-    int selWordId = d.wordsModel->getWordData( currentRow() )->id;
+    int selWordId = d.currentRowData()->id;
 
     if( d.cachedAudio.end() == d.cachedAudio.find( selWordId ) )
     {
@@ -286,13 +296,13 @@ void MainWindow::removeCurrentWord()
 
 void MainWindow::wordsTableSelectionChanged()
 {
-    d.actionPlay->setEnabled( currentRow() != -1 );
-    d.actionRemove->setEnabled( currentRow() != -1 );
+    d.actionPlay->setEnabled( d.currentRow() != -1 );
+    d.actionRemove->setEnabled( d.currentRow() != -1 );
 
-    if( -1 == currentRow() )
+    if( -1 == d.currentRow() )
         return;
 
-    std::shared_ptr< WordsData > word = d.wordsModel->getWordData( currentRow() );
+    std::shared_ptr< WordsData > word = d.currentRowData();
 
     WordsContentProvider wordsProvider;
     QString html = wordsProvider.generateHtml( word, HtmlDest_View );

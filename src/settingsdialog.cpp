@@ -17,6 +17,7 @@ SettingsDialog::SettingsDialog( QWidget* parent )
     ui->workingDirEdit->setText( settings->workingDir() );
     ui->repeatsCountSpin->setValue( settings->repeatsCount() );
     ui->genLearnedChBox->setChecked( settings->needGenerateLearned() );
+    ui->showLearnedChB->setChecked( settings->needShowLearned() );
 
     connect( ui->chooseWorkingDirBtn, SIGNAL(clicked()), this, SLOT(chooseWorkingDir()));
     connect( ui->buttonBox, SIGNAL(accepted()), this, SLOT(storeSettings()));
@@ -38,4 +39,5 @@ void SettingsDialog::storeSettings()
     settings->setWorkingDir( ui->workingDirEdit->text() );
     settings->setRepeatsCount( ui->repeatsCountSpin->value() );
     settings->setNeedGenerateLearned( ui->genLearnedChBox->isChecked() );
+    settings->setNeedShowLearned( ui->showLearnedChB->isChecked() );
 }
