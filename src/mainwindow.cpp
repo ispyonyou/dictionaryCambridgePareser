@@ -19,7 +19,7 @@
 #include <QNetworkProxyFactory>
 #include <QSqlRecord>
 #include <QSqlError>
-#include "CambridgeDictionaryParser.h"
+#include "cambridgedictionaryparser.h"
 #include "dbutils.h"
 #include "ContentProviders/wordscontentprovider.h"
 #include "ContentProviders/sensescontentprovider.h"
