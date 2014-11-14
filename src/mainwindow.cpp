@@ -29,6 +29,8 @@
 #include <QMediaPlayer>
 #include <QMediaPlaylist>
 #include <QToolBar>
+#include <QSortFilterProxyModel>
+#include <QHeaderView>
 
 class MainWindowPrivate
 {
@@ -61,12 +63,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     d.ui->setupUi(this);
 
-    connect( d.ui->addWordEdit, &QLineEdit::textChanged, [=]( const QString &text ){
+    connect( d.ui->addWordEdit, &QLineEdit::textChanged, [=]( const QString& text ){
         d.ui->addWordBtn->setEnabled( !text.isEmpty() );
     } );
-    d.ui->addWordBtn->setEnabled( !d.ui->addWordEdit->text().isEmpty() );
+    connect( d.ui->addWordEdit, &QLineEdit::returnPressed, [=](){
+        addWord( d.ui->addWordEdit->text() );
+    } );
+    connect( d.ui->addWordBtn, &QToolButton::clicked, [=]( bool ){
+        addWord( d.ui->addWordEdit->text() );
+    } );
 
-    connect( d.ui->addWordBtn, SIGNAL(clicked()), this, SLOT(addWordClicked()) );
+    d.ui->addWordBtn->setEnabled( !d.ui->addWordEdit->text().isEmpty() );
 
     if( !createConnection() ){
         QMessageBox::critical( 0, qApp->tr( "Cannot open database" ),
@@ -86,7 +93,13 @@ MainWindow::MainWindow(QWidget *parent)
         d.wordsModel->appendWord( word );
     }
 
-    d.ui->tableView->setModel( d.wordsModel );
+    QSortFilterProxyModel* proxyModel = new QSortFilterProxyModel( this );
+    proxyModel->setSourceModel( d.wordsModel );
+
+    d.ui->tableView->setModel( proxyModel );
+
+    d.ui->tableView->setSortingEnabled( true );
+    d.ui->tableView->horizontalHeader()->setSortIndicator( Hid_WordModel_Word, Qt::AscendingOrder );
 
     connect( d.ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
 
@@ -206,9 +219,9 @@ void MainWindow::showSettings()
     settingsDlg->deleteLater();
 }
 
-void MainWindow::addWordClicked()
+void MainWindow::addWord( const QString& wordSource )
 {
-    QString word = d.ui->addWordEdit->text().toLower().trimmed();
+    QString word = wordSource.toLower().trimmed();
 
     CambridgeDictWordInfo wordInfo;
     if( !d.cambridgeDictParser->loadWordInfo( word, wordInfo ) )

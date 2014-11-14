@@ -18,7 +18,7 @@ public:
 public Q_SLOTS:
     void generateMp3andHtml();
     void showSettings();
-    void addWordClicked();
+    void addWord( const QString& word );
     void playCurrentWord();
     void removeCurrentWord();
     void wordsTableSelectionChanged();
