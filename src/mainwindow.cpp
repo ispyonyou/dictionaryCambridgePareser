@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
 #include "settingsmanager.h"
+#include "aboutdialog.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -47,6 +48,7 @@ public:
     QMap< int, QByteArray* > cachedAudio;
     Ui::MainWindow *ui;
     QAction* actionPlay;
+    QAction* actionRemove;
 };
 
 MainWindow::MainWindow(QWidget *parent)
@@ -99,12 +101,19 @@ MainWindow::MainWindow(QWidget *parent)
     QAction* actionSettings = new QAction( QIcon(":res/icons/settings.ico"), tr( "&Settings" ), this );
     connect( actionSettings, SIGNAL(triggered()), this, SLOT(showSettings()) );
 
+    d.actionRemove = new QAction( QIcon(":res/icons/remove.ico"), tr( "&Remove" ), this );
+    connect( d.actionRemove, SIGNAL(triggered()), this, SLOT(removeCurrentWord()) );
+
     QToolBar* mainToolBar = addToolBar( "Main" );
     mainToolBar->addAction( d.actionPlay );
+    mainToolBar->addAction( d.actionRemove );
     mainToolBar->addAction( actionGenerate );
     mainToolBar->addAction( actionSettings );
 
     d.actionPlay->setEnabled( currentRow() != -1 );
+    d.actionRemove->setEnabled( currentRow() != -1 );
+
+    connect( d.ui->action_About, &QAction::triggered, []( bool ){ AboutDialog().exec(); } );
 }
 
 MainWindow::~MainWindow()
@@ -199,7 +208,7 @@ void MainWindow::showSettings()
 
 void MainWindow::addWordClicked()
 {
-    QString word = d.ui->addWordEdit->text().trimmed();
+    QString word = d.ui->addWordEdit->text().toLower().trimmed();
 
     CambridgeDictWordInfo wordInfo;
     if( !d.cambridgeDictParser->loadWordInfo( word, wordInfo ) )
@@ -228,7 +237,10 @@ void MainWindow::addWordClicked()
         }
     }
 
-    d.wordsModel->appendWord( wordData );
+    int row = d.wordsModel->appendWord( wordData );
+    d.ui->tableView->selectRow( row );
+
+    playCurrentWord();
 }
 
 void MainWindow::playCurrentWord()
@@ -255,9 +267,15 @@ void MainWindow::playCurrentWord()
     d.mediaPlayer->play();
 }
 
+void MainWindow::removeCurrentWord()
+{
+}
+
 void MainWindow::wordsTableSelectionChanged()
 {
     d.actionPlay->setEnabled( currentRow() != -1 );
+    d.actionRemove->setEnabled( currentRow() != -1 );
+
     if( -1 == currentRow() )
         return;
 

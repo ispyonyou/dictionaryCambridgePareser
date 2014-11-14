@@ -92,7 +92,7 @@
   </widget>
   <action name="action_About">
    <property name="text">
-    <string>&amp;About</string>
+    <string>&amp;About AVS English Dictionary... </string>
    </property>
   </action>
  </widget>

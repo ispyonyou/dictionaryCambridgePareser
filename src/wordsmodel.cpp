@@ -156,11 +156,13 @@ bool WordsModel::removeRows( int position, int rows, const QModelIndex& index )
     return true;
 }
 
-void WordsModel::appendWord( std::shared_ptr< WordsData > wordData )
+int WordsModel::appendWord( std::shared_ptr< WordsData > wordData )
 {
     beginInsertRows( QModelIndex(), d.Words.size(), d.Words.size() );
     d.Words.append( wordData );
     endInsertRows();
+
+    return d.Words.size() - 1;
 }
 
 std::shared_ptr< WordsData > WordsModel::getWordData( long row )

@@ -24,7 +24,7 @@ public:
     bool insertRows( int position, int rows, const QModelIndex& index = QModelIndex() );
     bool removeRows( int position, int rows, const QModelIndex& index = QModelIndex() );
 
-    void appendWord( std::shared_ptr< WordsData > wordData );
+    int appendWord( std::shared_ptr< WordsData > wordData );
 
     std::shared_ptr< WordsData > getWordData( long row );
 

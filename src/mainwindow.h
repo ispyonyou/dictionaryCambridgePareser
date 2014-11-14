@@ -20,6 +20,7 @@ public Q_SLOTS:
     void showSettings();
     void addWordClicked();
     void playCurrentWord();
+    void removeCurrentWord();
     void wordsTableSelectionChanged();
 
 private:

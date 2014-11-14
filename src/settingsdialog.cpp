@@ -10,7 +10,6 @@
 SettingsDialog::SettingsDialog( QWidget* parent )
     : QDialog( parent )
     , ui( new Ui::Settings )
-
 {
     ui->setupUi(this);
     settings = new SettingsManager( this );

@@ -5,5 +5,6 @@
         <file>res/icons/generate.ico</file>
         <file>res/icons/settings.ico</file>
         <file>res/icons/add.ico</file>
+        <file>res/icons/remove.ico</file>
     </qresource>
 </RCC>

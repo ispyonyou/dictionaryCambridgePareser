@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     ContentProviders/examplescontentprovider.cpp \
     webviewwitheditablesizehint.cpp \
     mp3wrap.cpp \
-    settingsmanager.cpp
+    settingsmanager.cpp \
+    aboutdialog.cpp
 
 HEADERS  += mainwindow.h \
     settingsdialog.h \
@@ -36,11 +37,13 @@ HEADERS  += mainwindow.h \
     ContentProviders/examplesdata.h \
     webviewwitheditablesizehint.h \
     mp3wrap.h \
-    settingsmanager.h
+    settingsmanager.h \
+    aboutdialog.h
 
 FORMS    += \
     settings.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    about.ui
 
 RESOURCES += \
     resources.qrc
