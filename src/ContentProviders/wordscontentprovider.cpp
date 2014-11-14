@@ -82,68 +82,87 @@ bool WordsContentProvider::updateIsLearned( std::shared_ptr< WordsData >& word )
     return desc.dbUpdate( QList< void* >() << &desc.isLearned );
 }
 
-QString WordsContentProvider::generateHtml( const std::shared_ptr< WordsData > word )
+QString WordsContentProvider::generateHtml( const std::shared_ptr< WordsData > word, enHtmlDest dest )
 {
-    return generateHtml( QList< std::shared_ptr< WordsData > >() << word );
+    return generateHtml( QList< std::shared_ptr< WordsData > >() << word, dest );
 }
 
-QString WordsContentProvider::generateHtml( const QList< std::shared_ptr< WordsData > >& words )
+QString WordsContentProvider::generateHtml( const QList< std::shared_ptr< WordsData > >& words, enHtmlDest dest )
 {
     QString html;
 
     html += "<!DOCTYPE html>"
             "<html lang=\"en\">"
-            "<head>"
-            "  <meta charset=\"utf-8\" /> "
+            "<head>\n"
+            "  <meta charset=\"utf-8\" />"
             "  <style>"
-            "    .wordArea {"
-            "    }"
-            "    .word {"""
-            "      font: 22pt sans-serif; "
+            "    .wordArea{"
+            "    }\n"
+            "    .word {"
+            "      font: 22pt sans-serif;"
             "    }"
             "    .transcrypt{"
-            "      font: 18pt monospace; "
+            "      font: 18pt monospace;"
             "    }"
             "    .senses{"
-            "      position: relative; "
+            "      position: relative;"
             "      left: 20px;"
-            "      font: 14pt sans-serif; "
+            "      font: 14pt sans-serif;"
             "    }"
-            "  </style> "
+            "    .defenition{"
+            "      color: #606060"
+            "    }"
+            "  </style>"
             "</head>"
             "<body>";
 
+    html += "<div id=\"top\"/>";
+
     SensesContentProvider sensesProvider;
     ExamplesContentProvider examplesProvider;
+
+    QString wordsRefsHtml = "<div class=\"word\">";
+    QString wordsHtml;
 
     for( int i = 0; i < words.size(); i++ )
     {
         std::shared_ptr< WordsData > wordData = words[ i ];
 
+        if( HtmlDest_Out == dest )
+            wordsRefsHtml += QString( "<a href=\"#%1\">%1</a><br/>" ).arg( wordData->word );
+
         QString header =  "<div class=\"wordArea\">"
                             "<div>"
-                              "<span class=\"word\"> %1 </span><span class=\"transcrypt\">/%2/</span>"
-                            "</div>"
-                          "</div>";
+                              "<span class=\"word\" id=\"%1\"> %1 </span>"
+                              "<span class=\"transcrypt\">/%2/</span>";
+        if( HtmlDest_Out == dest )
+            header += "<span><a href=\"#top\">back</a></span>";
 
-        html += header.arg( wordData->word )
-                      .arg( wordData->transcription );
+        header += "</div></div>";
+
+        wordsHtml += header.arg( wordData->word )
+                           .arg( wordData->transcription );
 
         QList< std::shared_ptr< SensesData > > senses;
         sensesProvider.loadSenses( wordData->id, senses );
 
-        html += "<div class=\"senses\">";
+        wordsHtml += "<div class=\"senses\">";
 
         Q_FOREACH( std::shared_ptr< SensesData > sense, senses )
         {
-            QString senseHtml = "<li>%1<br/>%2</li>";
+            QString senseHtml = "<li><span class=\"defenition\">%1</span><br/>%2</li>";
 
-            html += senseHtml.arg( sense->defenition )
-                             .arg( sense->translation );
+            wordsHtml += senseHtml.arg( sense->defenition )
+                                  .arg( sense->translation );
         }
 
-        html += "</div><br/>";
+        wordsHtml += "</div><br/>";
     }
+
+    if( HtmlDest_Out == dest )
+        html += wordsRefsHtml + "</div><br/>";
+
+    html += wordsHtml;
 
     html += "</body>"
             "</html>";

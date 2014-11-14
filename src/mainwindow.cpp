@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "settingsdialog.h"
+#include "settingsmanager.h"
 #include <QNetworkAccessManager>
 #include <QNetworkRequest>
 #include <QNetworkReply>
@@ -153,9 +154,21 @@ void MainWindow::generateMp3andHtml()
 
     wrap.addSource( nullSound );
 
-    for( int i = 0; i < d.wordsModel->rowCount( QModelIndex() ); i++ ) {
+    SettingsManager settings;
+
+    QList< std::shared_ptr< WordsData > > words;
+    for( int i = 0; i < d.wordsModel->rowCount( QModelIndex() ); i++ )
+    {
         std::shared_ptr< WordsData > wordData = d.wordsModel->getWordData( i );
 
+        if( !settings.needGenerateLearned() && wordData->isLearned )
+            continue;
+
+        words.append( wordData );
+    }
+
+    Q_FOREACH( std::shared_ptr< WordsData > wordData, words )
+    {
         QByteArray audio;
         wordsProvider.loadAudio( wordData->id, audio );
 
@@ -168,12 +181,7 @@ void MainWindow::generateMp3andHtml()
 
     wrap.doWrap();
 
-    QList< std::shared_ptr< WordsData > > words;
-    for( int i = 0; i < d.wordsModel->rowCount( QModelIndex() ); i++ ) {
-        words.append( d.wordsModel->getWordData( i ) );
-    }
-
-    QString html = wordsProvider.generateHtml( words );
+    QString html = wordsProvider.generateHtml( words, HtmlDest_Out );
 
     QFile htmlFile( "html_" + curTimeStr + ".html" );
     htmlFile.open( QFile::WriteOnly );
@@ -256,7 +264,7 @@ void MainWindow::wordsTableSelectionChanged()
     std::shared_ptr< WordsData > word = d.wordsModel->getWordData( currentRow() );
 
     WordsContentProvider wordsProvider;
-    QString html = wordsProvider.generateHtml( word );
+    QString html = wordsProvider.generateHtml( word, HtmlDest_View );
 
     d.ui->webView->setHtml( html );
 }

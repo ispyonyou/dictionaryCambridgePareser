@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>336</width>
-    <height>146</height>
+    <width>554</width>
+    <height>129</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -93,6 +93,16 @@
       </spacer>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="genLearnedChBox">
+     <property name="text">
+      <string>Generate mp3 and html for learned words</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <spacer name="verticalSpacer">

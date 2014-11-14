@@ -18,7 +18,8 @@ SOURCES += main.cpp\
     ContentProviders/sensescontentprovider.cpp \
     ContentProviders/examplescontentprovider.cpp \
     webviewwitheditablesizehint.cpp \
-    mp3wrap.cpp
+    mp3wrap.cpp \
+    settingsmanager.cpp
 
 HEADERS  += mainwindow.h \
     settingsdialog.h \
@@ -34,7 +35,8 @@ HEADERS  += mainwindow.h \
     ContentProviders/examplescontentprovider.h \
     ContentProviders/examplesdata.h \
     webviewwitheditablesizehint.h \
-    mp3wrap.h
+    mp3wrap.h \
+    settingsmanager.h
 
 FORMS    += \
     settings.ui \

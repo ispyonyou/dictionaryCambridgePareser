@@ -7,7 +7,7 @@ namespace Ui {
     class Settings;
 }
 
-class QSettings;
+class SettingsManager;
 
 class SettingsDialog : public QDialog
 {
@@ -23,7 +23,7 @@ public Q_SLOTS:
 
 private:
     Ui::Settings* ui;
-    QSettings* settings;
+    SettingsManager* settings;
 };
 
 #endif // SETTINGSDIALOG_H
