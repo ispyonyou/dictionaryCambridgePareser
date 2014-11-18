@@ -11,6 +11,7 @@
 #include <QWebElement>
 #include <QBuffer>
 #include <QFile>
+#include <QDir>
 #include <QProcess>
 #include <QSqlDatabase>
 #include <QSqlQuery>
@@ -126,6 +127,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect( d.ui->tableView->selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(wordsTableSelectionChanged()) );
 
+    connect( d.ui->addWordEdit, &QLineEdit::textChanged, [=]( const QString& text ){
+        d.proxyModel->setWordFilter( text );
+    } );
+
     d.ui->webView->setUrl( QUrl( QStringLiteral( "about:blank" ) ) );
 
     d.actionPlay = new QAction( QIcon(":res/icons/play.ico"), tr( "&Play" ), this );
@@ -159,6 +164,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::generateMp3andHtml()
 {
+    SettingsManager settings;
+
     QDate curDate = QDate::currentDate();
     QTime curTime = QTime::currentTime();
 
@@ -170,7 +177,7 @@ void MainWindow::generateMp3andHtml()
                                                        .arg( curTime.second() );
 
     Mp3Wrap wrap;
-    wrap.setOutFile( "album_" + curTimeStr + ".mp3" );
+    wrap.setOutFile( settings.workingDir() + QDir::separator() + "album_" + curTimeStr + ".mp3" );
 
     WordsContentProvider wordsProvider;
 
@@ -184,12 +191,17 @@ void MainWindow::generateMp3andHtml()
 
     wrap.addSource( nullSound );
 
-    SettingsManager settings;
+    WordsSortFilterProxyModel proxy;
+    proxy.setNeedShowLearned( SettingsManager().needGenerateLearned() );
+    proxy.setSourceModel( d.wordsModel );
+
+    proxy.sort( Hid_WordModel_Word );
 
     QList< std::shared_ptr< WordsData > > words;
-    for( int i = 0; i < d.wordsModel->rowCount( QModelIndex() ); i++ )
+    for( int i = 0; i < proxy.rowCount( QModelIndex() ); i++ )
     {
-        std::shared_ptr< WordsData > wordData = d.wordsModel->getWordData( i );
+        int wordId = proxy.data( proxy.index( i, 0 ), WordsModel::WordIdRole ).toInt();
+        std::shared_ptr< WordsData > wordData =  d.wordsModel->getWordDataById( wordId );
 
         if( !settings.needGenerateLearned() && wordData->isLearned )
             continue;
@@ -213,7 +225,7 @@ void MainWindow::generateMp3andHtml()
 
     QString html = wordsProvider.generateHtml( words, HtmlDest_Out );
 
-    QFile htmlFile( "html_" + curTimeStr + ".html" );
+    QFile htmlFile( settings.outHtmlFile() );
     htmlFile.open( QFile::WriteOnly );
 
     htmlFile.write( html.toUtf8() );

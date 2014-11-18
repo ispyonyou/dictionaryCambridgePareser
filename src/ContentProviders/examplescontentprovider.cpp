@@ -54,3 +54,28 @@ bool ExamplesContentProvider::insertExample( std::shared_ptr< ExamplesData >& ex
     return true;
 }
 
+bool ExamplesContentProvider::loadExamples( int senseId, QList< std::shared_ptr< ExamplesData > >& examples )
+{
+    ExamplesDesc desc;
+
+    QString queryStr = "select " + desc.makeBufferingStr() + " from " + desc.getTableName();
+            queryStr += " where sense_id=:sense_id";
+
+    QSqlQuery query;
+    query.prepare( queryStr );
+
+    query.bindValue( ":sense_id", senseId );
+
+    if( !query.exec() )
+        return false;
+
+    QSqlRecord rec = query.record();
+
+    while( query.next() )
+    {
+        desc.fetch( query, rec );
+        examples.append( std::make_shared< ExamplesData >( desc ) );
+    }
+
+    return true;
+}

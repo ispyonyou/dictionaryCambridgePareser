@@ -19,6 +19,7 @@ public:
 
 public Q_SLOTS:
     void chooseWorkingDir();
+    void chooseOutHtmlFile();
     void storeSettings();
 
 private:

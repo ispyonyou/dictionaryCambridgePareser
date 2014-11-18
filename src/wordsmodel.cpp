@@ -196,11 +196,27 @@ void WordsSortFilterProxyModel::setNeedShowLearned( bool val )
     invalidateFilter();
 }
 
+void WordsSortFilterProxyModel::setWordFilter( const QString& word )
+{
+    QRegExp regExp( "^" + word.trimmed() + "+", Qt::CaseInsensitive );
+
+    setFilterRegExp( regExp );
+    invalidateFilter();
+}
+
 bool WordsSortFilterProxyModel::filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent ) const
 {
-    QModelIndex index = sourceModel()->index(sourceRow, Hid_WordModel_IsLearned, sourceParent);
-    if( !needShowLearned && sourceModel()->data( index ).toBool() )
+    QModelIndex wordIndex = sourceModel()->index(sourceRow, Hid_WordModel_Word, sourceParent);
+    QModelIndex isLearnedIndex = sourceModel()->index(sourceRow, Hid_WordModel_IsLearned, sourceParent);
+
+    if( !needShowLearned && sourceModel()->data( isLearnedIndex ).toBool() )
         return false;
 
-    return true;
+
+    QRegExp regexp = filterRegExp();
+    QString word = sourceModel()->data( wordIndex ).toString();
+
+    word.contains( regexp );
+
+    return sourceModel()->data( wordIndex ).toString().contains( filterRegExp() );
 }

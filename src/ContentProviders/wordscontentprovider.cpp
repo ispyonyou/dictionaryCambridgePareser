@@ -110,7 +110,14 @@ QString WordsContentProvider::generateHtml( const QList< std::shared_ptr< WordsD
             "      font: 14pt sans-serif;"
             "    }"
             "    .defenition{"
-            "      color: #606060"
+            "      color: rgb(147, 66, 147);"
+            "      font-weight: bold;"
+            "    }"
+            "    .example{"
+            "      color: #606060;"
+            "      font-style: italic;"
+            "      position: relative;"
+            "      left: 20px;"
             "    }"
             "  </style>"
             "</head>"
@@ -154,6 +161,16 @@ QString WordsContentProvider::generateHtml( const QList< std::shared_ptr< WordsD
 
             wordsHtml += senseHtml.arg( sense->defenition )
                                   .arg( sense->translation );
+
+            QList< std::shared_ptr< ExamplesData > > examples;
+            examplesProvider.loadExamples( sense->id, examples );
+
+            Q_FOREACH( std::shared_ptr< ExamplesData > example, examples )
+            {
+                QString exampleHtml = "<div class=\"example\">%1</div>";
+
+                wordsHtml += exampleHtml.arg( example->text );
+            }
         }
 
         wordsHtml += "</div><br/>";

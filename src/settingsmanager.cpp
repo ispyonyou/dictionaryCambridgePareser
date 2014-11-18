@@ -4,6 +4,7 @@
 #include <QSettings>
 
 #define SETTINGS_WORKING_DIR   "workingDirectory"
+#define SETTINGS_OUT_HTML_FILE "outHtmlFile"
 #define SETTINGS_REPEATS_COUNT "repeatsCount"
 #define SETTINGS_GEN_LEARNED   "generateInfoForLearned"
 #define SETTINGS_SHOW_LEARNED  "showLearned"
@@ -22,6 +23,16 @@ QString SettingsManager::workingDir()
 void SettingsManager::setWorkingDir( const QString& val )
 {
     settings->setValue( SETTINGS_WORKING_DIR, val );
+}
+
+QString SettingsManager::outHtmlFile()
+{
+    return settings->value( SETTINGS_OUT_HTML_FILE,  "" ).toString();
+}
+
+void SettingsManager::setOutHtmlFile( const QString& val )
+{
+    settings->setValue( SETTINGS_OUT_HTML_FILE, val );
 }
 
 int SettingsManager::repeatsCount()

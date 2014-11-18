@@ -13,6 +13,9 @@ public:
     QString workingDir();
     void setWorkingDir( const QString& val );
 
+    QString outHtmlFile();
+    void setOutHtmlFile( const QString& val );
+
     int repeatsCount();
     void setRepeatsCount( int val );
 

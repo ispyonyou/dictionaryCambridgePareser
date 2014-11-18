@@ -52,6 +52,7 @@ public:
     WordsSortFilterProxyModel( QObject* parent = 0 );
 
     void setNeedShowLearned( bool val );
+    void setWordFilter( const QString& word );
 
 protected:
     bool filterAcceptsRow( int sourceRow, const QModelIndex& sourceParent) const;
