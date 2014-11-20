@@ -155,6 +155,12 @@ MainWindow::MainWindow(QWidget *parent)
     d.actionRemove->setEnabled( d.currentRow() != -1 );
 
     connect( d.ui->action_About, &QAction::triggered, []( bool ){ AboutDialog().exec(); } );
+
+    connect( d.ui->tableView, &QTableView::doubleClicked, [=]( const QModelIndex& /*index*/ ) {
+        playCurrentWord();
+//        int wordId = proxyModel->data( index, WordsModel::WordIdRole ).toInt();
+//        return wordsModel->getWordDataById( wordId );
+    } );
 }
 
 MainWindow::~MainWindow()

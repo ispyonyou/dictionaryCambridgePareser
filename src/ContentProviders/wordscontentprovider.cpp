@@ -102,6 +102,7 @@ QString WordsContentProvider::generateHtml( const QList< std::shared_ptr< WordsD
             "      font: 22pt sans-serif;"
             "    }"
             "    .transcrypt{"
+            "      color: #404040;"
             "      font: 18pt monospace;"
             "    }"
             "    .senses{"
